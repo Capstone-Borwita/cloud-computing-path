@@ -1,0 +1,15 @@
+meta {
+  name: Delete store
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{base_url}}/api/{{api_version}}/stores/{{id}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.body.detail: eq 'success'
+}

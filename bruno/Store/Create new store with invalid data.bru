@@ -1,0 +1,21 @@
+meta {
+  name: Create new store with invalid data
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/stores
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": 1
+  }
+}
+
+assert {
+  res.status: eq 422
+}

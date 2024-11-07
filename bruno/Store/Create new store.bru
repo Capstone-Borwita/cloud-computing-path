@@ -1,0 +1,37 @@
+meta {
+  name: Create new store
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/stores
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "{{name}}"
+  }
+}
+
+vars:post-response {
+  id: res.body.data.id
+}
+
+assert {
+  res.status: eq 201
+  res.body.data.id: isNumber
+}
+
+script:pre-request {
+  const randomString = Math.random()
+    .toString(36)
+    .slice(2)
+  
+  bru.setVar(
+    'name',
+    `Toko pak budi ${randomString}`,
+  )
+}
