@@ -1,0 +1,28 @@
+meta {
+  name: Update store
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/stores/{{id}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "{{name}}"
+  }
+}
+
+assert {
+  res.body.detail: eq 'success'
+}
+
+script:pre-request {
+  bru.setVar(
+    'name',
+    bru.getVar('name').replace(' ', ' baru')
+  )
+}

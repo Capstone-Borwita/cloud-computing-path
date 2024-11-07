@@ -1,0 +1,15 @@
+meta {
+  name: Find 1 store
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_url}}/api/{{api_version}}/stores/{{id}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.body.data.id: isNumber 200
+}
