@@ -203,6 +203,13 @@ def get_all_stores(session: SessionDep) -> SuccessDataResponse[List[Store]]:
         raise HTTPException(status_code=404, detail="No stores found.")
     return SuccessDataResponse(data=stores)
 
+@router.get("/{store_id}", response_model=SuccessDataResponse[Store], status_code=200)
+def get_store_by_id(store_id: int, session: SessionDep) -> SuccessDataResponse[Store]:
+    store = session.get(Store, store_id)
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found.")
+    return SuccessDataResponse(data=store)
+
 @router.get("/", response_model=SuccessDataResponse) 
 def get_store_by_user_token(
     session: SessionDep,
