@@ -7,6 +7,16 @@ from sqlmodel import Field, SQLModel
 
 class BaseStore(SQLModel):
     name: str = Field()
+    owner_name: str = Field()
+    keeper_phone_number: str = Field()
+    ktp_photo_path: str = Field()
+    keeper_nik: int = Field()
+    keeper_address: str = Field()
+    store_photo_path: str = Field()
+    longitude: str = Field()
+    latitude: str = Field()
+    georeverse: str = Field()
+    users_id: Optional[int] = Field(default=None, foreign_key="users.id")
 
 
 class StoreCreate(BaseStore):
