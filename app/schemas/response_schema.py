@@ -20,9 +20,6 @@ class SuccessIdResponse(BaseModel):
     data: ModelId
 
 class UserLoginResponse(BaseModel):
-    id: int
-    name: str
-    email: str
     token: str
 
 class SuccessResponseLogin(BaseModel):
