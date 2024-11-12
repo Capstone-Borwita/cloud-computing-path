@@ -18,3 +18,12 @@ class SuccessDataResponse(BaseModel, Generic[T]):
 class SuccessIdResponse(BaseModel):
     detail: Literal["success"] = "success"
     data: ModelId
+
+class UserLoginResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    token: str
+
+class SuccessResponseLogin(BaseModel):
+    data: UserLoginResponse
