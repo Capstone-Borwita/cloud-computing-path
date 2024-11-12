@@ -1,26 +1,39 @@
-from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import Column, DateTime, func
 from sqlmodel import Field, SQLModel
+from fastapi import UploadFile, File
 
 
 class BaseStore(SQLModel):
     name: str = Field()
+    code: str = Field()
     owner_name: str = Field()
     keeper_phone_number: str = Field()
     ktp_photo_path: str = Field()
-    keeper_nik: int = Field()
+    keeper_name: str = Field()
+    keeper_nik: str = Field()
     keeper_address: str = Field()
     store_photo_path: str = Field()
     longitude: str = Field()
     latitude: str = Field()
     georeverse: str = Field()
-    users_id: Optional[int] = Field(default=None, foreign_key="users.id")
+    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
 
 
 class StoreCreate(BaseStore):
-    pass
+    name: str
+    code: str
+    owner_name: str
+    keeper_phone_number: str
+    keeper_nik: str
+    keeper_address: str
+    longitude: str
+    latitude: str
+    georeverse: str
+    user_id: Optional[int] = None
+    ktp_photo: UploadFile = File(...)
+    store_photo: UploadFile = File(...)
 
 
 class StoreUpdate(BaseStore):
@@ -29,9 +42,4 @@ class StoreUpdate(BaseStore):
 
 class Store(BaseStore, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    submitted_at: Optional[datetime] = Field(
-        default=None,
-        sa_column=Column(
-            DateTime(timezone=True), server_default=func.now(), nullable=True
-        ),
-    )
+ 

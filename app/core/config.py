@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     API_VERSION: str = "v1"
     API_V1_STR: str = "/api/v1"
 
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+
     class Config:
         env_file = ".env"
 

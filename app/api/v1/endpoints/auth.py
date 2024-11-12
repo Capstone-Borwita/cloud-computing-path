@@ -1,5 +1,7 @@
 from typing import List, Sequence
-from fastapi import APIRouter, HTTPException, status, Depends
+from pathlib import Path
+from app.core.config import Settings
+from fastapi import APIRouter, HTTPException, status, Depends, File, UploadFile, Form
 from sqlmodel import select, Session
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timedelta
@@ -15,15 +17,21 @@ from app.schemas.response_schema import (
 from app.schemas.model_schema import ModelId
 from passlib.context import CryptContext
 from app.utils.utils import create_access_token
+from uuid import uuid4
 import jwt
+import shutil
 
+settings = Settings()
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "a970cdd10ca22de9ea7981a1929a9c13e6b01dc05fad5c1491e67abe5f83554fac3efa57b1da6b00849909c5e18ed856232ed07b2e5a9b4b5ba962ac640f4c78"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 router = APIRouter()
+
+UPLOAD_DIR = Path("uploads/user-image")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+DEFAULT_IMAGE_PATH = UPLOAD_DIR / "default.png"
 
 def user_not_found():
     return HTTPException(status_code=404, detail="User not found")
@@ -39,32 +47,52 @@ def login_user(session: SessionDep, user_in: UserLogin) -> SuccessResponseLogin:
         )
 
     access_token = create_access_token(data={"sub": user.email})
-    user.token = access_token
-    session.add(user)
-    session.commit()
-    session.refresh(user)
     
     user_response = UserLoginResponse(
         id=user.id,
         name=user.name,
         email=user.email,
-        token=user.token
+        token=access_token
     )
 
     return SuccessResponseLogin(data=user_response)
 
-
-
 @router.post("/register", response_model=SuccessIdResponse, status_code=status.HTTP_201_CREATED)
-def register_user(session: SessionDep, user_in: UserCreate) -> SuccessIdResponse:
-    if user_in.password != user_in.password_confirmation:
+async def register_user(
+    session: SessionDep, 
+    email: str = Form(...),
+    password: str = Form(...),
+    password_confirmation: str = Form(...),
+    name: str = Form(...),
+    image: UploadFile = File(None)
+) -> SuccessIdResponse:
+    if password != password_confirmation:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password and password confirmation do not match"
         )
 
-    hashed_password = pwd_context.hash(user_in.password)
-    user = User(email=user_in.email, password=hashed_password, name=user_in.name)
+    hashed_password = pwd_context.hash(password)
+
+    if image:
+        image_extension = image.filename.split(".")[-1]
+        image_filename = f"{uuid4()}.{image_extension}"
+        image_path = UPLOAD_DIR / image_filename
+
+        with open(image_path, "wb") as buffer:
+            buffer.write(await image.read())
+    else:
+        image_filename = f"{uuid4()}.png"
+        image_path = UPLOAD_DIR / image_filename
+        shutil.copy(DEFAULT_IMAGE_PATH, image_path)
+
+    user = User(
+        email=email, 
+        password=hashed_password, 
+        name=name, 
+        image_path=str(image_path),
+        token=""
+    )
 
     try:
         session.add(user)
@@ -78,10 +106,5 @@ def register_user(session: SessionDep, user_in: UserCreate) -> SuccessIdResponse
         )
 
     access_token = create_access_token(data={"sub": user.email})
-    user.token = access_token
-    session.add(user)
-    session.commit()
-    session.refresh(user)
 
-    return SuccessIdResponse(data={"id": user.id, "token": user.token})
-
+    return SuccessIdResponse(data={"id": user.id, "token": access_token})
