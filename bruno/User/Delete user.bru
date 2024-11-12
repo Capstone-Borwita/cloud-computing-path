@@ -1,0 +1,18 @@
+meta {
+  name: Delete user
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{base_url}}/api/{{api_version}}/users/2
+  body: json
+  auth: none
+}
+
+body:multipart-form {
+  email: user@mail.com
+  password: 12345678
+  name: user1
+  token: 123
+}

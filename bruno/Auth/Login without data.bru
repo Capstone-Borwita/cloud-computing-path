@@ -1,0 +1,11 @@
+meta {
+  name: Login without data
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/auth/login
+  body: json
+  auth: none
+}

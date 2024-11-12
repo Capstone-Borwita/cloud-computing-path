@@ -1,0 +1,11 @@
+meta {
+  name: Register user without data
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/auth/register
+  body: json
+  auth: none
+}

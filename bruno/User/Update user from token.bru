@@ -1,0 +1,28 @@
+meta {
+  name: Update user from token
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/users/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMUBtYWlsLmNvbSIsImV4cCI6MTczMTM0MjM0N30.8k992glUoWxNS-RbBskdnzi87zNPvB2CX4_KbpWIAFM
+}
+
+body:json {
+  {
+    "name": "User2002"
+  }
+}
+
+body:multipart-form {
+  email: user@mail.com
+  password: 12345678
+  name: user1
+  token: 123
+}
