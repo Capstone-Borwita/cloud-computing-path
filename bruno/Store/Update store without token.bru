@@ -1,17 +1,17 @@
 meta {
-  name: Update store that does not exist
+  name: Update store without token
   type: http
-  seq: 4
+  seq: 6
 }
 
 put {
-  url: {{base_url}}/api/{{api_version}}/stores/99
-  body: multipartForm
+  url: {{base_url}}/api/{{api_version}}/stores/1
+  body: none
   auth: bearer
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyM0BtYWlsLmNvbSIsImV4cCI6MTczMTQwMjkzN30.-H5qniXlaBnjLQr003apPlu2doxaWhHCzmRcN9XsoS4
+  token: 
 }
 
 body:multipart-form {

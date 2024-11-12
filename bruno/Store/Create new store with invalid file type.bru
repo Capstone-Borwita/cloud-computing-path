@@ -1,7 +1,7 @@
 meta {
-  name: Create new store
+  name: Create new store with invalid file type
   type: http
-  seq: 1
+  seq: 3
 }
 
 post {
@@ -11,17 +11,17 @@ post {
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMUBtYWlsLmNvbSIsImV4cCI6MTczMTQxMTA1MX0.WlZ7xHTwOB4RekV-IPwLGM1Zd8x1nCeazWGZiPEd0Wk
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMUBtYWlsLmNvbSIsImV4cCI6MTczMTQwOTg0MH0.OoD9fdKFhKKJSCYytkZfPO9CL_H7O62yrOskwVXfEz4
 }
 
 body:multipart-form {
   name: Toko Serbaguna
   owner_name: Setiawan
   keeper_phone_number: 0895701614616
-  ktp_photo: @file(C:\Users\Administrator\Downloads\images.jpg)
+  ktp_photo: @file(C:\Users\Administrator\Downloads\2024-11-12 12-35-48.mp4)
   keeper_nik: 3171234567890123
   keeper_address: Jl. Pendowo
-  store_photo: @file(C:\Users\Administrator\Downloads\Toko-kelontong-di-Pangkalpinang.jpg)
+  store_photo: @file(C:\Users\Administrator\Downloads\2024-11-12 12-35-48.mp4)
   longitude: 6°21'55.8"S
   latitude: 106°46'55.7"E
   georeverse: '''

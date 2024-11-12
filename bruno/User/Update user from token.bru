@@ -6,23 +6,25 @@ meta {
 
 put {
   url: {{base_url}}/api/{{api_version}}/users/
-  body: json
+  body: multipartForm
   auth: bearer
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMUBtYWlsLmNvbSIsImV4cCI6MTczMTM0MjM0N30.8k992glUoWxNS-RbBskdnzi87zNPvB2CX4_KbpWIAFM
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyNTJAbWFpbC5jb20iLCJleHAiOjE3MzE0MjY2Nzl9.RDz3lJp305iMZ_ryXRLDVqivENvgyGkz8BIR6vs-ALw
 }
 
 body:json {
   {
-    "name": "User2002"
+    "name": "User3 Update"
   }
 }
 
 body:multipart-form {
-  email: user@mail.com
-  password: 12345678
-  name: user1
-  token: 123
+  email: user5@mail.com
+  name: user5update
+  image: @file(C:\Users\Administrator\Downloads\images.jpg)
+  new_password: 12345678
+  password_confirmation: 12345678
+  current_password: 12345678
 }

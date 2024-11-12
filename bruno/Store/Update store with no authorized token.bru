@@ -1,21 +1,21 @@
 meta {
-  name: Update store that does not exist
+  name: Update store with no authorized token
   type: http
-  seq: 4
+  seq: 6
 }
 
 put {
-  url: {{base_url}}/api/{{api_version}}/stores/99
+  url: {{base_url}}/api/{{api_version}}/stores/2
   body: multipartForm
   auth: bearer
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyM0BtYWlsLmNvbSIsImV4cCI6MTczMTQwMjkzN30.-H5qniXlaBnjLQr003apPlu2doxaWhHCzmRcN9XsoS4
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMjFAbWFpbC5jb20iLCJleHAiOjE3MzE0MDMzMTN9.QHo3ArCtHpHTmolpn-_jOllMEHfrOwiLrpZ7D5Yilq0
 }
 
 body:multipart-form {
-  name: DRP 24
+  name: DRP 25
   owner_name: Iwan
   keeper_phone_number: 0895701614616
   ktp_photo: @file(C:\Users\Administrator\Downloads\images.jpg)

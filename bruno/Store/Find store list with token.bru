@@ -1,0 +1,15 @@
+meta {
+  name: Find store list with token
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{base_url}}/api/{{api_version}}/stores/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMkBtYWlsLmNvbSIsImV4cCI6MTczMTQxMTA5Nn0.eaJvAsyxUvBRTjeMyRTjcJCUu0gax44V-CSafbnV5SY
+}

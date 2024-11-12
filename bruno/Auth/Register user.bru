@@ -6,16 +6,23 @@ meta {
 
 post {
   url: {{base_url}}/api/{{api_version}}/auth/register
-  body: json
+  body: multipartForm
   auth: none
 }
 
 body:json {
   {
-    "email": "user21212@mail.com",
+    "email": "user3@mail.com",
     "password": "12345678",
     "password_confirmation" : "12345678",
-    "name": "User2"
+    "name": "User3"
   }
   
+}
+
+body:multipart-form {
+  email: user5@mail.com
+  password: 12345678
+  password_confirmation: 12345678
+  name: User4
 }

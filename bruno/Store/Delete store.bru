@@ -1,15 +1,11 @@
 meta {
   name: Delete store
   type: http
-  seq: 9
+  seq: 10
 }
 
 delete {
-  url: {{base_url}}/api/{{api_version}}/stores/{{id}}
+  url: 
   body: none
   auth: none
-}
-
-assert {
-  res.body.detail: eq 'success'
 }

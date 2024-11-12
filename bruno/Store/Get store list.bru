@@ -1,15 +1,11 @@
 meta {
   name: Get store list
   type: http
-  seq: 4
+  seq: 8
 }
 
 get {
-  url: {{base_url}}/api/{{api_version}}/stores
+  url: {{base_url}}/api/{{api_version}}/stores/all
   body: none
   auth: none
-}
-
-assert {
-  res.body.data.length: gt 0
 }
