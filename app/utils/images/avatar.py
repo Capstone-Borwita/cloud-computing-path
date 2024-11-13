@@ -3,7 +3,7 @@ from pathlib import Path
 import random
 
 USER_AVATAR_PATH = Path("images/user-content/avatar")
-USER_AVATAR_PATH.mkdir(exist_ok=True)
+USER_AVATAR_PATH.mkdir(parents=True, exist_ok=True)
 
 DEFAULT_USER_AVATAR_PATH = Path("images/default/avatar")
 default_user_images = listdir(DEFAULT_USER_AVATAR_PATH)
