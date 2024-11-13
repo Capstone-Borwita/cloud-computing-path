@@ -5,7 +5,11 @@ meta {
 }
 
 delete {
-  url: 
+  url: {{base_url}}/api/{{api_version}}/stores/{{store_id}}
   body: none
   auth: none
+}
+
+assert {
+  res.status: eq 200
 }

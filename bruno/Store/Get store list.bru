@@ -5,7 +5,12 @@ meta {
 }
 
 get {
-  url: {{base_url}}/api/{{api_version}}/stores/all
+  url: {{base_url}}/api/{{api_version}}/stores/
   body: none
   auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.data: isArray
 }

@@ -5,7 +5,7 @@ meta {
 }
 
 put {
-  url: {{base_url}}/api/{{api_version}}/stores/1
+  url: {{base_url}}/api/{{api_version}}/stores/{{store_id}}
   body: none
   auth: bearer
 }
@@ -15,14 +15,10 @@ auth:bearer {
 }
 
 body:multipart-form {
-  name: DRP 24
-  owner_name: Iwan
-  keeper_phone_number: 0895701614616
-  ktp_photo: @file(C:\Users\Administrator\Downloads\images.jpg)
-  keeper_nik: 61717
-  keeper_address: Jln merk
-  store_photo: @file(C:\Users\Administrator\Downloads\Toko-kelontong-di-Pangkalpinang.jpg)
-  longitude: 1rweewrew
-  latitude: 1erwewrew
-  georeverse: 1ewrerwew
+  keeper_name: Budi Setiawan
+  keeper_address: Jl. Wow
+}
+
+assert {
+  res.status: eq 404
 }

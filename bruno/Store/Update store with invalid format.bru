@@ -5,24 +5,21 @@ meta {
 }
 
 put {
-  url: {{base_url}}/api/{{api_version}}/stores/2
+  url: {{base_url}}/api/{{api_version}}/stores/{{store_id}}
   body: multipartForm
   auth: bearer
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyM0BtYWlsLmNvbSIsImV4cCI6MTczMTQwMzU2NX0.rZrdwZyGmvfIj0vVCo_TcCAqxaG9EkcAhD07Qc3sf3U
+  token: {{user_token}}
 }
 
 body:multipart-form {
-  name: DRP 2024
-  owner_name: Iwan
-  keeper_phone_number: 0895701614616
-  ktp_photo: @file(C:\Users\Administrator\Downloads\2024-11-12 12-35-48.mp4)
-  keeper_nik: 61717
-  keeper_address: Jln merk
-  store_photo: @file(C:\Users\Administrator\Downloads\2024-11-12 12-35-48.mp4)
-  longitude: 1rweewrew
-  latitude: 1erwewrew
-  georeverse: 1ewrerwew
+  keeper_name: Budi Setiawan
+  keeper_address: Jl. Wow
+  ktp_photo: @file(files/foo.txt)
+}
+
+assert {
+  res.body.detail: contains 'Invalid file type'
 }

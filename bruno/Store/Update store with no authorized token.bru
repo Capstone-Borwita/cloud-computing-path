@@ -5,24 +5,20 @@ meta {
 }
 
 put {
-  url: {{base_url}}/api/{{api_version}}/stores/2
+  url: {{base_url}}/api/{{api_version}}/stores/{{store_id}}
   body: multipartForm
   auth: bearer
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyNTFAbWFpbC5jb20iLCJleHAiOjE3MzE0MjY2MTl9.So6tTuh2j7gbE0dxPolrL09RCzd6_Ew_ZKzNiOQrrY0
+  token: foo
 }
 
 body:multipart-form {
-  name: DRP 25
-  owner_name: Iwan
-  keeper_phone_number: 0895701614616
-  ktp_photo: @file(C:\Users\Administrator\Downloads\images.jpg)
-  keeper_nik: 61717
-  keeper_address: Jln merk
-  store_photo: @file(C:\Users\Administrator\Downloads\Toko-kelontong-di-Pangkalpinang.jpg)
-  longitude: 1rweewrew
-  latitude: 1erwewrew
-  georeverse: 1ewrerwew
+  keeper_name: Budi Setiawan
+  keeper_address: Jl. Wow
+}
+
+assert {
+  res.status: eq 404
 }

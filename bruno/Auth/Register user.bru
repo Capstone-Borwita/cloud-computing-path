@@ -1,7 +1,7 @@
 meta {
   name: Register user
   type: http
-  seq: 4
+  seq: 3
 }
 
 post {
@@ -21,8 +21,22 @@ body:json {
 }
 
 body:multipart-form {
-  email: user5@mail.com
+  email: user{{user_no}}@mail.com
   password: 12345678
   password_confirmation: 12345678
-  name: User4
+  name: User{{user_no}}
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  const key = 'user_no'
+  
+  bru.setVar(key, (bru.getVar(key) ?? 0) + 1)
+}
+
+script:post-response {
+  bru.setVar('user_token', res.body.data.token)
 }

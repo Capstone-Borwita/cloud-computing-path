@@ -11,5 +11,10 @@ get {
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMkBtYWlsLmNvbSIsImV4cCI6MTczMTQxMTA5Nn0.eaJvAsyxUvBRTjeMyRTjcJCUu0gax44V-CSafbnV5SY
+  token: {{user_token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.data: isArray 
 }
