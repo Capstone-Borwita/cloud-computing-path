@@ -32,7 +32,7 @@ def user_not_found():
     return HTTPException(status_code=404, detail="User not found")
 
 
-@router.get("/all", response_model=SuccessDataResponse[Sequence[User]])
+@router.get("/", response_model=SuccessDataResponse[Sequence[User]])
 def list_users(
     session: SessionDep, skip: int = 0, limit: int = 10
 ) -> SuccessDataResponse[List[User]]:

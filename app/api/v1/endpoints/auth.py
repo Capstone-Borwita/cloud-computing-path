@@ -5,11 +5,8 @@ from sqlmodel import select
 from sqlalchemy.exc import IntegrityError
 from app.database import SessionDep
 from app.models.user import User, UserLogin
-from app.schemas.response_schema import (
-    SuccessIdResponse,
-    SuccessResponseLogin,
-    UserLoginResponse,
-)
+from app.schemas.response_schema import CredentialResponse
+from app.schemas.model_schema import Credential
 from app.utils.utils import create_access_token
 from app.utils.images.avatar import USER_AVATAR_PATH, random_user_avatar
 
@@ -18,8 +15,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 router = APIRouter()
 
 
-@router.post("/login", response_model=SuccessResponseLogin)
-def login_user(session: SessionDep, user_in: UserLogin) -> SuccessResponseLogin:
+@router.post("/login")
+def login_user(session: SessionDep, user_in: UserLogin) -> CredentialResponse:
     user = session.exec(select(User).filter(User.email == user_in.email)).first()
 
     if not user or not pwd_context.verify(user_in.password, user.password):
@@ -27,16 +24,10 @@ def login_user(session: SessionDep, user_in: UserLogin) -> SuccessResponseLogin:
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
 
-    user_response = UserLoginResponse(
-        id=user.id, name=user.name, email=user.email, token=user.token
-    )
-
-    return SuccessResponseLogin(data=user_response)
+    return CredentialResponse(data=Credential(id=user.id, token=user.token))
 
 
-@router.post(
-    "/register", response_model=SuccessIdResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     session: SessionDep,
     email: str = Form(...),
@@ -44,7 +35,7 @@ async def register_user(
     password_confirmation: str = Form(...),
     name: str = Form(...),
     image: UploadFile = File(None),
-) -> SuccessIdResponse:
+) -> CredentialResponse:
     if password != password_confirmation:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -81,4 +72,4 @@ async def register_user(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered."
         )
 
-    return SuccessIdResponse(data={"id": user.id, "token": user.token})
+    return CredentialResponse(data=Credential(id=user.id, token=user.token))

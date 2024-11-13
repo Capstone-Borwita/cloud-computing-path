@@ -240,7 +240,7 @@ def update_store(
     return SuccessIdResponse(data=ModelId(id=store.id))
 
 
-@router.get("/all", response_model=SuccessDataResponse[List[Store]], status_code=200)
+@router.get("/", response_model=SuccessDataResponse[List[Store]], status_code=200)
 def get_all_stores(session: SessionDep) -> SuccessDataResponse[List[Store]]:
     stores = session.exec(select(Store)).all()
     if not stores:
@@ -277,8 +277,8 @@ def get_store_by_user_token(
     return SuccessDataResponse(data=stores)
 
 
-@router.delete("/{store_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_store(store_id: int, session: SessionDep):
+@router.delete("/{store_id}")
+def delete_store(store_id: int, session: SessionDep) -> SuccessResponse:
     store = session.exec(select(Store).where(Store.id == store_id)).first()
 
     if not store:

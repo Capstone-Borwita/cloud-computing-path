@@ -1,7 +1,7 @@
 from typing import Generic, TypeVar, Literal
 from pydantic import BaseModel
 
-from app.schemas.model_schema import ModelId
+from app.schemas.model_schema import ModelId, Credential
 
 T = TypeVar("T")
 
@@ -20,9 +20,6 @@ class SuccessIdResponse(BaseModel):
     data: ModelId
 
 
-class UserLoginResponse(BaseModel):
-    token: str
-
-
-class SuccessResponseLogin(BaseModel):
-    data: UserLoginResponse
+class CredentialResponse(BaseModel):
+    detail: Literal["success"] = "success"
+    data: Credential
