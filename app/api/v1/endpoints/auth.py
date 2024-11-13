@@ -1,5 +1,3 @@
-import shutil
-from pathlib import Path
 from uuid import uuid4
 from passlib.context import CryptContext
 from fastapi import APIRouter, HTTPException, status, File, UploadFile, Form
@@ -13,18 +11,11 @@ from app.schemas.response_schema import (
     UserLoginResponse,
 )
 from app.utils.utils import create_access_token
+from app.utils.images.avatar import USER_AVATAR_PATH, random_user_avatar
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 router = APIRouter()
-
-UPLOAD_DIR = Path("uploads/user-image")
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-DEFAULT_IMAGE_PATH = UPLOAD_DIR / "default.png"
-
-
-def user_not_found():
-    return HTTPException(status_code=404, detail="User not found")
 
 
 @router.post("/login", response_model=SuccessResponseLogin)
@@ -65,14 +56,12 @@ async def register_user(
     if image:
         image_extension = image.filename.split(".")[-1]
         image_filename = f"{uuid4()}.{image_extension}"
-        image_path = UPLOAD_DIR / image_filename
+        image_path = USER_AVATAR_PATH / image_filename
 
         with open(image_path, "wb") as buffer:
             buffer.write(await image.read())
     else:
-        image_filename = f"{uuid4()}.png"
-        image_path = UPLOAD_DIR / image_filename
-        shutil.copy(DEFAULT_IMAGE_PATH, image_path)
+        image_path = random_user_avatar()
 
     user = User(
         email=email,
