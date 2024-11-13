@@ -19,8 +19,10 @@ class SuccessIdResponse(BaseModel):
     detail: Literal["success"] = "success"
     data: ModelId
 
+
 class UserLoginResponse(BaseModel):
     token: str
+
 
 class SuccessResponseLogin(BaseModel):
     data: UserLoginResponse

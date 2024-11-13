@@ -1,33 +1,28 @@
 import os
-import jwt
-from typing import List, Sequence
-from app.core.config import Settings
-from fastapi import APIRouter, HTTPException, status, Depends, UploadFile, File, Depends, Form
+from typing import List, Sequence, Optional
 from pathlib import Path
 from uuid import uuid4
-from sqlmodel import select, Session
-from sqlalchemy.exc import IntegrityError
-from datetime import datetime, timedelta
-from pathlib import Path
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    status,
+    Depends,
+    UploadFile,
+    File,
+    Depends,
+    Form,
+)
+from sqlmodel import select
+from passlib.context import CryptContext
 from app.database import SessionDep
-from app.models.user import User, UserCreate, UserUpdate
+from app.models.user import User
+from app.utils.utils import get_current_user, create_access_token
 from app.schemas.response_schema import (
-    SuccessIdResponse,
     SuccessResponse,
     SuccessDataResponse,
 )
-from app.schemas.model_schema import ModelId
-from passlib.context import CryptContext
-from app.utils.utils import get_current_user
-from typing import Optional
-from app.utils.utils import create_access_token
 
 
-
-settings = Settings()
-SECRET_KEY = settings.secret_key
-ALGORITHM = settings.algorithm
-ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 UPLOAD_DIR = Path("uploads/user-image")
@@ -35,25 +30,23 @@ DEFAULT_IMAGE_PATH = UPLOAD_DIR / "default.png"
 
 router = APIRouter()
 
-def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)) -> str:
-    to_encode = data.copy()
-    expire = datetime.utcnow() + expires_delta
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
 
 def user_not_found():
     return HTTPException(status_code=404, detail="User not found")
 
 
 @router.get("/all", response_model=SuccessDataResponse[Sequence[User]])
-def list_users(session: SessionDep, skip: int = 0, limit: int = 10) -> SuccessDataResponse[List[User]]:
+def list_users(
+    session: SessionDep, skip: int = 0, limit: int = 10
+) -> SuccessDataResponse[List[User]]:
     users = session.exec(select(User).offset(skip).limit(limit)).all()
     return SuccessDataResponse(data=users)
 
 
 @router.get("/", response_model=SuccessDataResponse[User])
-def get_current_user_data(session: SessionDep, current_user: User = Depends(get_current_user)) -> SuccessDataResponse[User]:
+def get_current_user_data(
+    current_user: User = Depends(get_current_user),
+) -> SuccessDataResponse[User]:
     return SuccessDataResponse(data=current_user)
 
 
@@ -66,32 +59,35 @@ async def update_user(
     new_password: Optional[str] = Form(None),
     password_confirmation: Optional[str] = Form(None),
     name: Optional[str] = Form(None),
-    image: UploadFile = File(None) 
+    image: UploadFile = File(None),
 ) -> SuccessResponse:
     user = session.get(User, current_user.id)
     if not user:
         raise user_not_found()
 
+    new_token = None
+
     if new_password:
         if not current_password:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Current password is required to update password"
+                detail="Current password is required to update password",
             )
 
         if not pwd_context.verify(current_password, user.password):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Current password is incorrect"
+                detail="Current password is incorrect",
             )
 
         if new_password != password_confirmation:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="New password and password confirmation do not match"
+                detail="New password and password confirmation do not match",
             )
 
         user.password = pwd_context.hash(new_password)
+        new_token = create_access_token()
 
     if email:
         user.email = email
@@ -106,7 +102,9 @@ async def update_user(
         with open(new_image_path, "wb") as buffer:
             buffer.write(await image.read())
 
-        if user.image_path != str(DEFAULT_IMAGE_PATH) and os.path.exists(user.image_path):
+        if user.image_path != str(DEFAULT_IMAGE_PATH) and os.path.exists(
+            user.image_path
+        ):
             os.remove(user.image_path)
 
         user.image_path = str(new_image_path)
@@ -115,14 +113,13 @@ async def update_user(
     session.commit()
     session.refresh(user)
 
-    new_token = create_access_token(data={"sub": user.email})
-
     return SuccessResponse(message="User updated successfully", token=new_token)
+
 
 @router.delete("/{id}", response_model=SuccessResponse)
 def delete_user(id: int, session: SessionDep) -> SuccessResponse:
     user = session.get(User, id)
-    
+
     if user is None:
         raise user_not_found()
 
@@ -130,5 +127,3 @@ def delete_user(id: int, session: SessionDep) -> SuccessResponse:
     session.commit()
 
     return SuccessResponse()
-
-
