@@ -6,5 +6,4 @@ class ModelId(BaseModel):
 
 
 class Credential(BaseModel):
-    id: int
     token: str

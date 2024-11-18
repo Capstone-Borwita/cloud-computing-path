@@ -1,7 +1,7 @@
-from datetime import datetime
 from typing import Optional
 from sqlmodel import SQLModel, Field
 from pydantic import BaseModel
+
 
 class BaseUser(SQLModel):
     email: str = Field(index=True, unique=True)
@@ -14,13 +14,20 @@ class BaseUser(SQLModel):
 class UserCreate(BaseModel):
     email: str
     password: str
-    password_confirmation: str 
+    password_confirmation: str
     name: str
 
 
 class UserLogin(BaseModel):
     email: str
     password: str
+
+
+class UserGet(BaseModel):
+    email: str
+    name: str
+    image_path: str
+
 
 class UserUpdate(SQLModel):
     pass

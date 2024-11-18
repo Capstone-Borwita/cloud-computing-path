@@ -1,13 +1,18 @@
+import os
 from uuid import uuid4
 from passlib.context import CryptContext
-from fastapi import APIRouter, HTTPException, status, File, UploadFile, Form
+from fastapi import APIRouter, HTTPException, status, File, UploadFile, Form, Depends
 from sqlmodel import select
 from sqlalchemy.exc import IntegrityError
 from app.database import SessionDep
-from app.models.user import User, UserLogin
-from app.schemas.response_schema import CredentialResponse
+from app.models.user import User, UserLogin, UserGet
+from app.schemas.response_schema import (
+    CredentialResponse,
+    SuccessResponse,
+    SuccessDataResponse,
+)
 from app.schemas.model_schema import Credential
-from app.utils.utils import create_access_token
+from app.utils.utils import get_current_user, create_access_token
 from app.utils.images.avatar import USER_AVATAR_PATH, random_user_avatar
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -20,7 +25,7 @@ def login_user(session: SessionDep, user_in: UserLogin) -> CredentialResponse:
     user = session.exec(select(User).filter(User.email == user_in.email)).first()
 
     if user and pwd_context.verify(user_in.password, user.password):
-        return CredentialResponse(data=Credential(id=user.id, token=user.token))
+        return CredentialResponse(data=Credential(token=user.token))
 
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
@@ -65,4 +70,82 @@ async def register_user(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered."
         )
 
-    return CredentialResponse(data=Credential(id=user.id, token=user.token))
+    return CredentialResponse(data=Credential(token=user.token))
+
+
+@router.put("/edit-profile")
+def edit_profile(
+    session: SessionDep,
+    name: str = Form(None),
+    email: str = Form(None),
+    current_user: User = Depends(get_current_user),
+) -> SuccessResponse:
+    if name:
+        current_user.name = name
+
+    if email:
+        current_user.email = email
+
+    session.commit()
+    session.refresh(current_user)
+
+    return SuccessResponse()
+
+
+@router.put("/edit-photo-profile")
+async def edit_photo_profile(
+    session: SessionDep,
+    image: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+) -> SuccessResponse:
+    if current_user.image_path not in random_user_avatar and os.path.exists(
+        current_user.image_path
+    ):
+        os.remove(current_user.image_path)
+
+    image_extension = image.filename.split(".")[-1]
+    image_filename = f"{uuid4()}.{image_extension}"
+    image_path = USER_AVATAR_PATH / image_filename
+
+    with open(image_path, "wb") as buffer:
+        buffer.write(await image.read())
+
+    session.commit()
+    session.refresh(current_user)
+
+    return SuccessResponse()
+
+
+@router.get("/edit-password")
+def edit_password(
+    session: SessionDep,
+    old_password: str = File(...),
+    new_password: str = File(...),
+    current_user: User = Depends(get_current_user),
+) -> CredentialResponse:
+    if not pwd_context.verify(old_password, current_user.password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="These credentials do not match our records.",
+        )
+
+    current_user.password = pwd_context.hash(new_password)
+    current_user.token = create_access_token()
+
+    session.commit()
+    session.refresh(current_user)
+
+    return CredentialResponse(data=Credential(token=current_user.token))
+
+
+@router.get("/profile")
+def profile(
+    current_user: User = Depends(get_current_user),
+) -> SuccessDataResponse[UserGet]:
+    return SuccessDataResponse(
+        data=UserGet(
+            email=current_user.email,
+            name=current_user.name,
+            image_path=current_user.image_path,
+        )
+    )
