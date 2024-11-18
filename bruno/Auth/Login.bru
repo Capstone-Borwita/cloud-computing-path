@@ -6,15 +6,13 @@ meta {
 
 post {
   url: {{base_url}}/api/{{api_version}}/auth/login
-  body: json
+  body: multipartForm
   auth: none
 }
 
-body:json {
-  {
-      "email": "user{{user_no}}@mail.com",
-      "password": "12345678"
-  }
+body:multipart-form {
+  email: user{{user_no}}@mail.com
+  password: 12345678
 }
 
 assert {

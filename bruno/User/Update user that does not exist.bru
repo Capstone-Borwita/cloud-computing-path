@@ -6,15 +6,8 @@ meta {
 
 put {
   url: {{base_url}}/api/{{api_version}}/users/99
-  body: json
+  body: multipartForm
   auth: none
-}
-
-body:json {
-  {
-    "name": "User21"
-  }
-  
 }
 
 body:multipart-form {

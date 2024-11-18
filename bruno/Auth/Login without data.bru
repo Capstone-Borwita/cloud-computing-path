@@ -1,12 +1,12 @@
 meta {
   name: Login without data
   type: http
-  seq: 6
+  seq: 3
 }
 
 post {
   url: {{base_url}}/api/{{api_version}}/auth/login
-  body: json
+  body: multipartForm
   auth: none
 }
 
