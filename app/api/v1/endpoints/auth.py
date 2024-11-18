@@ -125,8 +125,8 @@ async def edit_photo_profile(
 @router.put("/edit-password")
 def edit_password(
     session: SessionDep,
-    old_password: str = File(...),
-    new_password: str = File(...),
+    old_password: str = Form(...),
+    new_password: str = Form(...),
     current_user: User = Depends(get_current_user),
 ) -> CredentialResponse:
     if not pwd_context.verify(old_password, current_user.password):
