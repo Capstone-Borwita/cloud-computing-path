@@ -1,6 +1,5 @@
 from typing import Optional
 
-from sqlalchemy import Column, DateTime, func
 from sqlmodel import Field, SQLModel
 from fastapi import UploadFile, File
 
