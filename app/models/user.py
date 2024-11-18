@@ -18,11 +18,6 @@ class UserCreate(BaseModel):
     name: str
 
 
-class UserLogin(BaseModel):
-    email: str
-    password: str
-
-
 class UserGet(BaseModel):
     email: str
     name: str

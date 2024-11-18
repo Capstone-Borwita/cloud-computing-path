@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, status, File, UploadFile, Form, De
 from sqlmodel import select
 from sqlalchemy.exc import IntegrityError
 from app.database import SessionDep
-from app.models.user import User, UserLogin, UserGet
+from app.models.user import User, UserGet
 from app.schemas.response_schema import (
     CredentialResponse,
     SuccessResponse,
@@ -25,10 +25,12 @@ router = APIRouter()
 
 
 @router.post("/login")
-def login_user(session: SessionDep, user_in: UserLogin) -> CredentialResponse:
-    user = session.exec(select(User).filter(User.email == user_in.email)).first()
+def login_user(
+    session: SessionDep, email: str = Form(...), password: str = Form(...)
+) -> CredentialResponse:
+    user = session.exec(select(User).filter(User.email == email)).first()
 
-    if user and pwd_context.verify(user_in.password, user.password):
+    if user and pwd_context.verify(password, user.password):
         return CredentialResponse(data=Credential(token=user.token))
 
     raise HTTPException(
