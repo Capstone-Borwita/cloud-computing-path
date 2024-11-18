@@ -26,7 +26,6 @@ from app.schemas.response_schema import (
 from app.utils.utils import get_current_user
 from app.utils.images.ktp import KTP_IMAGE_PATH
 from app.utils.images.store import STORE_IMAGE_PATH
-from app.utils.images.avatar import default_user_images
 
 router = APIRouter()
 
@@ -286,18 +285,10 @@ def delete_store(
             status_code=status.HTTP_404_NOT_FOUND, detail="Store not found."
         )
 
-    if (
-        store.ktp_photo_path
-        and store.ktp_photo_path not in default_user_images
-        and os.path.exists(store.ktp_photo_path)
-    ):
+    if store.ktp_photo_path and os.path.exists(store.ktp_photo_path):
         os.remove(store.ktp_photo_path)
 
-    if (
-        store.store_photo_path
-        and store.ktp_photo_path not in default_user_images
-        and os.path.exists(store.store_photo_path)
-    ):
+    if store.store_photo_path and os.path.exists(store.store_photo_path):
         os.remove(store.store_photo_path)
 
     session.delete(store)
