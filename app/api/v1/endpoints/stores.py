@@ -15,6 +15,7 @@ from fastapi import (
 from sqlmodel import select
 from pathlib import Path
 from app.database import SessionDep
+from app.models.user import User
 from app.models.store import Store
 from app.schemas.model_schema import ModelId
 from app.schemas.response_schema import (
@@ -51,7 +52,7 @@ def create_store(
     georeverse: str = Form(...),
     ktp_photo: UploadFile = File(...),
     store_photo: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> SuccessIdResponse:
     user_id = current_user.id
 
@@ -155,20 +156,14 @@ def update_store(
     georeverse: str = Form(None),
     ktp_photo: UploadFile = File(None),
     store_photo: UploadFile = File(None),
-    current_user: dict = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> SuccessIdResponse:
-    user_id = current_user.id
-
-    store = session.exec(select(Store).where(Store.id == store_id)).first()
+    store = session.exec(
+        select(Store).where(Store.id == store_id).where(User.id == current_user.id)
+    ).first()
     if not store:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Store not found."
-        )
-
-    if store.user_id != user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to update this store.",
         )
 
     if name:
@@ -241,44 +236,49 @@ def update_store(
 
 
 @router.get("/", response_model=SuccessDataResponse[List[Store]], status_code=200)
-def get_all_stores(session: SessionDep) -> SuccessDataResponse[List[Store]]:
-    stores = session.exec(select(Store)).all()
+def get_all_stores(
+    session: SessionDep, current_user: User = Depends(get_current_user)
+) -> SuccessDataResponse[List[Store]]:
+    stores = session.exec(select(Store).where(User.id == current_user.id)).all()
 
     return SuccessDataResponse(data=stores)
 
 
 @router.get("/{store_id}", response_model=SuccessDataResponse[Store], status_code=200)
-def get_store_by_id(store_id: int, session: SessionDep) -> SuccessDataResponse[Store]:
-    store = session.get(Store, store_id)
+def get_store_by_id(
+    store_id: int, session: SessionDep, current_user: User = Depends(get_current_user)
+) -> SuccessDataResponse[Store]:
+    store = session.exec(
+        select(Store).where(Store.id == store_id).where(User.id == current_user.id)
+    ).first()
+
     if not store:
         raise HTTPException(status_code=404, detail="Store not found.")
+
     return SuccessDataResponse(data=store)
 
 
 @router.get("/", response_model=SuccessDataResponse)
 def get_store_by_user_token(
     session: SessionDep,
-    current_user: dict = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> SuccessDataResponse:
-    user_id = current_user.id
-
-    print(f"User ID from token: {user_id}")
-
-    stores = session.exec(select(Store).where(Store.user_id == user_id)).all()
-
-    if not stores:
-        print(f"No stores found for user ID: {user_id}")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No stores found for the user.",
-        )
+    stores = session.exec(select(Store).where(Store.user_id == current_user.id)).all()
 
     return SuccessDataResponse(data=stores)
 
 
 @router.delete("/{store_id}")
-def delete_store(store_id: int, session: SessionDep) -> SuccessResponse:
-    store = session.exec(select(Store).where(Store.id == store_id)).first()
+def delete_store(
+    store_id: int,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+) -> SuccessResponse:
+    store = session.exec(
+        select(Store)
+        .where(Store.id == store_id)
+        .where(Store.user_id == current_user.id)
+    ).first()
 
     if not store:
         raise HTTPException(
