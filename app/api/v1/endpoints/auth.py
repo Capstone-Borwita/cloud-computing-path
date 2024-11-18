@@ -19,12 +19,12 @@ router = APIRouter()
 def login_user(session: SessionDep, user_in: UserLogin) -> CredentialResponse:
     user = session.exec(select(User).filter(User.email == user_in.email)).first()
 
-    if not user or not pwd_context.verify(user_in.password, user.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
-        )
+    if user and pwd_context.verify(user_in.password, user.password):
+        return CredentialResponse(data=Credential(id=user.id, token=user.token))
 
-    return CredentialResponse(data=Credential(id=user.id, token=user.token))
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+    )
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
@@ -32,16 +32,9 @@ async def register_user(
     session: SessionDep,
     email: str = Form(...),
     password: str = Form(...),
-    password_confirmation: str = Form(...),
     name: str = Form(...),
     image: UploadFile = File(None),
 ) -> CredentialResponse:
-    if password != password_confirmation:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password and password confirmation do not match",
-        )
-
     hashed_password = pwd_context.hash(password)
 
     if image:
