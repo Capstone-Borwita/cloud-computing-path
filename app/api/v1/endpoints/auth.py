@@ -122,7 +122,7 @@ async def edit_photo_profile(
     return SuccessResponse()
 
 
-@router.get("/edit-password")
+@router.put("/edit-password")
 def edit_password(
     session: SessionDep,
     old_password: str = File(...),
