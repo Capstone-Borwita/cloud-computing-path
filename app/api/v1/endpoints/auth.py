@@ -13,7 +13,11 @@ from app.schemas.response_schema import (
 )
 from app.schemas.model_schema import Credential
 from app.utils.utils import get_current_user, create_access_token
-from app.utils.images.avatar import USER_AVATAR_PATH, random_user_avatar
+from app.utils.images.avatar import (
+    USER_AVATAR_PATH,
+    random_user_avatar,
+    default_user_images,
+)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -98,7 +102,7 @@ async def edit_photo_profile(
     image: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
 ) -> SuccessResponse:
-    if current_user.image_path not in random_user_avatar and os.path.exists(
+    if current_user.image_path not in default_user_images and os.path.exists(
         current_user.image_path
     ):
         os.remove(current_user.image_path)
@@ -109,6 +113,8 @@ async def edit_photo_profile(
 
     with open(image_path, "wb") as buffer:
         buffer.write(await image.read())
+
+    current_user.image_path = str(image_path)
 
     session.commit()
     session.refresh(current_user)
