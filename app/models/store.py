@@ -42,4 +42,3 @@ class StoreUpdate(BaseStore):
 
 class Store(BaseStore, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
- 

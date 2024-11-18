@@ -243,8 +243,7 @@ def update_store(
 @router.get("/", response_model=SuccessDataResponse[List[Store]], status_code=200)
 def get_all_stores(session: SessionDep) -> SuccessDataResponse[List[Store]]:
     stores = session.exec(select(Store)).all()
-    if not stores:
-        raise HTTPException(status_code=404, detail="No stores found.")
+
     return SuccessDataResponse(data=stores)
 
 
