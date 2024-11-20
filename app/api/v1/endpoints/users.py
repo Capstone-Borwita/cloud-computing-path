@@ -54,7 +54,6 @@ async def update_user(
     current_password: Optional[str] = Form(None),
     email: Optional[str] = Form(None),
     new_password: Optional[str] = Form(None),
-    password_confirmation: Optional[str] = Form(None),
     name: Optional[str] = Form(None),
     image: UploadFile = File(None),
 ) -> SuccessResponse:
@@ -75,12 +74,6 @@ async def update_user(
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Current password is incorrect",
-            )
-
-        if new_password != password_confirmation:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="New password and password confirmation do not match",
             )
 
         user.password = pwd_context.hash(new_password)
