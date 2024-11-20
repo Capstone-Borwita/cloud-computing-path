@@ -257,20 +257,6 @@ def get_store_by_id(
     return SuccessDataResponse(data=store)
 
 
-@router.get("/", response_model=SuccessDataResponse)
-def get_store_by_user_token(
-    session: SessionDep,
-    current_user: User = Depends(get_current_user),
-) -> SuccessDataResponse:
-    stores = session.exec(select(Store).where(Store.user_id == current_user.id)).all()
-
-    for store in stores:
-        store.ktp_photo_path = settings.ORIGIN + store.ktp_photo_path
-        store.store_photo_path = settings.ORIGIN + store.store_photo_path
-
-    return SuccessDataResponse(data=stores)
-
-
 @router.delete("/{store_id}")
 def delete_store(
     store_id: int,
