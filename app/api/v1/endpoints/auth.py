@@ -2,6 +2,7 @@ import os
 from uuid import uuid4
 from passlib.context import CryptContext
 from fastapi import APIRouter, HTTPException, status, File, UploadFile, Form, Depends
+from pydantic import EmailStr
 from sqlmodel import select
 from sqlalchemy.exc import IntegrityError
 from app.database import SessionDep
@@ -26,7 +27,9 @@ router = APIRouter()
 
 @router.post("/login")
 def login_user(
-    session: SessionDep, email: str = Form(...), password: str = Form(...)
+    session: SessionDep,
+    email: EmailStr = Form(...),
+    password: str = Form(..., min_length=8),
 ) -> CredentialResponse:
     user = session.exec(select(User).filter(User.email == email)).first()
 
@@ -41,9 +44,9 @@ def login_user(
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     session: SessionDep,
-    email: str = Form(...),
-    password: str = Form(...),
-    name: str = Form(...),
+    email: EmailStr = Form(...),
+    password: str = Form(..., min_length=8),
+    name: str = Form(..., min_length=1),
     image: UploadFile = File(None),
 ) -> CredentialResponse:
     hashed_password = pwd_context.hash(password)
@@ -82,8 +85,8 @@ async def register_user(
 @router.put("/edit-profile")
 def edit_profile(
     session: SessionDep,
-    name: str = Form(None),
-    email: str = Form(None),
+    name: str = Form(None, min_length=1),
+    email: EmailStr = Form(None),
     current_user: User = Depends(get_current_user),
 ) -> SuccessResponse:
     if name:
@@ -127,8 +130,8 @@ async def edit_photo_profile(
 @router.put("/edit-password")
 def edit_password(
     session: SessionDep,
-    old_password: str = Form(...),
-    new_password: str = Form(...),
+    old_password: str = Form(..., min_length=8),
+    new_password: str = Form(..., min_length=8),
     current_user: User = Depends(get_current_user),
 ) -> CredentialResponse:
     if not pwd_context.verify(old_password, current_user.password):

@@ -12,6 +12,9 @@ from fastapi import (
     File,
     Form,
 )
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from pydantic_extra_types.coordinate import Longitude, Latitude
 from sqlmodel import select
 from pathlib import Path
 from app.database import SessionDep
@@ -22,10 +25,12 @@ from app.schemas.response_schema import (
     SuccessIdResponse,
     SuccessDataResponse,
     SuccessResponse,
+    InvalidRequestResponse,
 )
 from app.utils.utils import get_current_user
 from app.utils.images.ktp import KTP_IMAGE_PATH
 from app.utils.images.store import STORE_IMAGE_PATH
+from app.lang.id import indonesia_fields
 
 router = APIRouter()
 
@@ -41,66 +46,40 @@ def generate_random_filename(keeper_nik: int, original_filename: str) -> str:
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_store(
     session: SessionDep,
-    name: str = Form(...),
-    owner_name: str = Form(...),
-    keeper_phone_number: str = Form(...),
-    keeper_nik: str = Form(...),
-    keeper_name: str = Form(...),
-    keeper_address: str = Form(...),
-    longitude: str = Form(...),
-    latitude: str = Form(...),
-    georeverse: str = Form(...),
+    name: str = Form(..., min_length=1),
+    owner_name: str = Form(..., min_length=1),
+    keeper_phone_number: str = Form(..., regex=r"^0\d{6,15}$"),
+    keeper_nik: str = Form(
+        ..., regex=r"^\d{6}(?:0[1-9]|[1-2][0-9]|3[0-1])(?:0[1-9]|1[0-2])\d{5}[1-9]$"
+    ),
+    keeper_name: str = Form(..., min_length=1),
+    keeper_address: str = Form(..., min_length=1),
+    longitude: Longitude = Form(...),
+    latitude: Latitude = Form(...),
+    georeverse: str = Form(..., min_length=1),
     ktp_photo: UploadFile = File(...),
     store_photo: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
 ) -> SuccessIdResponse:
     user_id = current_user.id
 
-    required_fields = [
-        name,
-        owner_name,
-        keeper_phone_number,
-        keeper_nik,
-        keeper_address,
-        longitude,
-        latitude,
-        georeverse,
-    ]
-    for field, field_name in zip(
-        required_fields,
-        [
-            "name",
-            "owner_name",
-            "keeper_phone_number",
-            "keeper_nik",
-            "keeper_name",
-            "keeper_address",
-            "longitude",
-            "latitude",
-            "georeverse",
-        ],
-    ):
-        if field is None or field == "":
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Field '{field_name}' is required.",
-            )
-
-    if not ktp_photo or not store_photo:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Both 'ktp_photo' and 'store_photo' are required.",
-        )
-
     if ktp_photo.content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid file type for 'ktp_photo'. Only JPEG and PNG images are allowed.",
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content=jsonable_encoder(
+                InvalidRequestResponse(
+                    message=f"Kolom {indonesia_fields['ktp_photo']} tidak valid. Hanya boleh JPEG atau PNG"
+                )
+            ),
         )
     if store_photo.content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid file type for 'store_photo'. Only JPEG and PNG images are allowed.",
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content=jsonable_encoder(
+                InvalidRequestResponse(
+                    message=f"Kolom {indonesia_fields['store_photo']} tidak valid. Hanya boleh JPEG atau PNG"
+                )
+            ),
         )
 
     ktp_photo_filename = generate_random_filename(keeper_nik, ktp_photo.filename)
@@ -145,15 +124,17 @@ def create_store(
 def update_store(
     store_id: int,
     session: SessionDep,
-    name: str = Form(None),
-    owner_name: str = Form(None),
-    keeper_phone_number: str = Form(None),
-    keeper_nik: str = Form(None),
-    keeper_name: str = Form(None),
-    keeper_address: str = Form(None),
-    longitude: str = Form(None),
-    latitude: str = Form(None),
-    georeverse: str = Form(None),
+    name: str = Form(None, min_length=1),
+    owner_name: str = Form(None, min_length=1),
+    keeper_phone_number: str = Form(None, regex=r"^0\d{6,15}$"),
+    keeper_nik: str = Form(
+        None, regex=r"^\d{6}(?:0[1-9]|[1-2][0-9]|3[0-1])(?:0[1-9]|1[0-2])\d{5}[1-9]$"
+    ),
+    keeper_name: str = Form(None, min_length=1),
+    keeper_address: str = Form(None, min_length=1),
+    longitude: Longitude = Form(None),
+    latitude: Latitude = Form(None),
+    georeverse: str = Form(None, min_length=1),
     ktp_photo: UploadFile = File(None),
     store_photo: UploadFile = File(None),
     current_user: User = Depends(get_current_user),
@@ -187,9 +168,13 @@ def update_store(
 
     if ktp_photo:
         if ktp_photo.content_type not in ALLOWED_IMAGE_TYPES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid file type for 'ktp_photo'. Only JPEG and PNG images are allowed.",
+            return JSONResponse(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                content=jsonable_encoder(
+                    InvalidRequestResponse(
+                        message=f"Kolom {indonesia_fields['ktp_photo']} tidak valid. Hanya boleh JPEG atau PNG"
+                    )
+                ),
             )
 
         if store.ktp_photo_path and os.path.exists(store.ktp_photo_path):
@@ -208,9 +193,13 @@ def update_store(
 
     if store_photo:
         if store_photo.content_type not in ALLOWED_IMAGE_TYPES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid file type for 'store_photo'. Only JPEG and PNG images are allowed.",
+            return JSONResponse(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                content=jsonable_encoder(
+                    InvalidRequestResponse(
+                        message=f"Kolom {indonesia_fields['store_photo']} tidak valid. Hanya boleh JPEG atau PNG"
+                    )
+                ),
             )
 
         if store.store_photo_path and os.path.exists(store.store_photo_path):
