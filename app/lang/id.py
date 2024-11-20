@@ -16,4 +16,5 @@ indonesia_fields = {
     "image": "gambar",
     "ktp_photo": "foto KTP",
     "store_photo": "foto toko",
+    "store_id": "ID toko",
 }
