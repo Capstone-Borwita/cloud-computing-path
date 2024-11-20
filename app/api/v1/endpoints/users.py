@@ -21,6 +21,7 @@ from app.schemas.response_schema import (
     SuccessResponse,
     SuccessDataResponse,
 )
+from app.core.config import settings
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -37,6 +38,10 @@ def list_users(
     session: SessionDep, skip: int = 0, limit: int = 10
 ) -> SuccessDataResponse[List[User]]:
     users = session.exec(select(User).offset(skip).limit(limit)).all()
+
+    for user in users:
+        user.avatar_path = settings.ORIGIN + user.avatar_path
+
     return SuccessDataResponse(data=users)
 
 
@@ -44,6 +49,8 @@ def list_users(
 def get_current_user_data(
     current_user: User = Depends(get_current_user),
 ) -> SuccessDataResponse[User]:
+    current_user.avatar_path = settings.ORIGIN + current_user.avatar_path
+
     return SuccessDataResponse(data=current_user)
 
 

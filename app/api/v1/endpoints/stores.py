@@ -31,6 +31,7 @@ from app.utils.utils import get_current_user
 from app.utils.images.ktp import KTP_IMAGE_PATH
 from app.utils.images.store import STORE_IMAGE_PATH
 from app.lang.id import indonesia_fields
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -230,6 +231,10 @@ def get_all_stores(
 ) -> SuccessDataResponse[List[Store]]:
     stores = session.exec(select(Store).where(User.id == current_user.id)).all()
 
+    for store in stores:
+        store.ktp_photo_path = settings.ORIGIN + store.ktp_photo_path
+        store.store_photo_path = settings.ORIGIN + store.store_photo_path
+
     return SuccessDataResponse(data=stores)
 
 
@@ -244,6 +249,9 @@ def get_store_by_id(
     if not store:
         raise HTTPException(status_code=404, detail="Store not found.")
 
+    store.ktp_photo_path = settings.ORIGIN + store.ktp_photo_path
+    store.store_photo_path = settings.ORIGIN + store.store_photo_path
+
     return SuccessDataResponse(data=store)
 
 
@@ -253,6 +261,10 @@ def get_store_by_user_token(
     current_user: User = Depends(get_current_user),
 ) -> SuccessDataResponse:
     stores = session.exec(select(Store).where(Store.user_id == current_user.id)).all()
+
+    for store in stores:
+        store.ktp_photo_path = settings.ORIGIN + store.ktp_photo_path
+        store.store_photo_path = settings.ORIGIN + store.store_photo_path
 
     return SuccessDataResponse(data=stores)
 

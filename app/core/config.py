@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     API_VERSION: str = "v1"
     API_V1_STR: str = "/api/v1"
     PORT: int = 8000
+    ORIGIN: str = "http://localhost:8000"
 
     token_length: int = 32
 
