@@ -23,3 +23,9 @@ class SuccessIdResponse(BaseModel):
 class CredentialResponse(BaseModel):
     detail: Literal["success"] = "success"
     data: Credential
+
+
+class InvalidRequestResponse(BaseModel):
+    detail: Literal["invalid"] = "invalid"
+    data: None = None
+    message: str
