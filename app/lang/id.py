@@ -13,7 +13,7 @@ indonesia_fields = {
     "longitude": "garis bujur",
     "latitude": "garis lintang",
     "georeverse": "georeverse",
-    "image": "gambar",
+    "avatar": "foto profil",
     "ktp_photo": "foto KTP",
     "store_photo": "foto toko",
     "store_id": "ID toko",

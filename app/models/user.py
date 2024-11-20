@@ -8,7 +8,7 @@ class BaseUser(SQLModel):
     password: str = Field()
     name: str = Field()
     token: str = Field()
-    image_path: str = Field()
+    avatar_path: str = Field()
 
 
 class UserCreate(BaseModel):
@@ -21,7 +21,7 @@ class UserCreate(BaseModel):
 class UserGet(BaseModel):
     email: str
     name: str
-    image_path: str
+    avatar_path: str
 
 
 class UserUpdate(SQLModel):

@@ -17,7 +17,7 @@ from app.utils.utils import get_current_user, create_access_token
 from app.utils.images.avatar import (
     USER_AVATAR_PATH,
     random_user_avatar,
-    default_user_images,
+    default_user_avatars,
 )
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -47,25 +47,25 @@ async def register_user(
     email: EmailStr = Form(...),
     password: str = Form(..., min_length=8),
     name: str = Form(..., min_length=1),
-    image: UploadFile = File(None),
+    avatar: UploadFile = File(None),
 ) -> CredentialResponse:
     hashed_password = pwd_context.hash(password)
 
-    if image:
-        image_extension = image.filename.split(".")[-1]
-        image_filename = f"{uuid4()}.{image_extension}"
-        image_path = USER_AVATAR_PATH / image_filename
+    if avatar:
+        avatar_extension = avatar.filename.split(".")[-1]
+        avatar_filename = f"{uuid4()}.{avatar_extension}"
+        avatar_path = USER_AVATAR_PATH / avatar_filename
 
-        with open(image_path, "wb") as buffer:
-            buffer.write(await image.read())
+        with open(avatar_path, "wb") as buffer:
+            buffer.write(await avatar.read())
     else:
-        image_path = random_user_avatar()
+        avatar_path = random_user_avatar()
 
     user = User(
         email=email,
         password=hashed_password,
         name=name,
-        image_path=str(image_path),
+        avatar_path=str(avatar_path),
         token=create_access_token(),
     )
 
@@ -104,22 +104,22 @@ def edit_profile(
 @router.put("/edit-photo-profile")
 async def edit_photo_profile(
     session: SessionDep,
-    image: UploadFile = File(...),
+    avatar: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
 ) -> SuccessResponse:
-    if current_user.image_path not in default_user_images and os.path.exists(
-        current_user.image_path
+    if current_user.avatar_path not in default_user_avatars and os.path.exists(
+        current_user.avatar_path
     ):
-        os.remove(current_user.image_path)
+        os.remove(current_user.avatar_path)
 
-    image_extension = image.filename.split(".")[-1]
-    image_filename = f"{uuid4()}.{image_extension}"
-    image_path = USER_AVATAR_PATH / image_filename
+    avatar_extension = avatar.filename.split(".")[-1]
+    avatar_filename = f"{uuid4()}.{avatar_extension}"
+    avatar_path = USER_AVATAR_PATH / avatar_filename
 
-    with open(image_path, "wb") as buffer:
-        buffer.write(await image.read())
+    with open(avatar_path, "wb") as buffer:
+        buffer.write(await avatar.read())
 
-    current_user.image_path = str(image_path)
+    current_user.avatar_path = str(avatar_path)
 
     session.commit()
     session.refresh(current_user)
@@ -157,6 +157,6 @@ def profile(
         data=UserGet(
             email=current_user.email,
             name=current_user.name,
-            image_path=current_user.image_path,
+            avatar_path=current_user.avatar_path,
         )
     )

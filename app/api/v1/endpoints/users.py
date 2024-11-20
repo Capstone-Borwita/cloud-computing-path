@@ -16,7 +16,7 @@ from passlib.context import CryptContext
 from app.database import SessionDep
 from app.models.user import User
 from app.utils.utils import get_current_user, create_access_token
-from app.utils.images.avatar import USER_AVATAR_PATH, default_user_images
+from app.utils.images.avatar import USER_AVATAR_PATH, default_user_avatars
 from app.schemas.response_schema import (
     SuccessResponse,
     SuccessDataResponse,
@@ -87,17 +87,17 @@ async def update_user(
     if image:
         image_extension = image.filename.split(".")[-1]
         new_image_filename = f"{uuid4()}.{image_extension}"
-        new_image_path = USER_AVATAR_PATH / new_image_filename
+        new_avatar_path = USER_AVATAR_PATH / new_image_filename
 
-        with open(new_image_path, "wb") as buffer:
+        with open(new_avatar_path, "wb") as buffer:
             buffer.write(await image.read())
 
-        if user.image_path not in default_user_images and os.path.exists(
-            user.image_path
+        if user.avatar_path not in default_user_avatars and os.path.exists(
+            user.avatar_path
         ):
-            os.remove(user.image_path)
+            os.remove(user.avatar_path)
 
-        user.image_path = str(new_image_path)
+        user.avatar_path = str(new_avatar_path)
 
     session.add(user)
     session.commit()
