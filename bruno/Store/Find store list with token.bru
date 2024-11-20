@@ -1,7 +1,7 @@
 meta {
   name: Find store list with token
   type: http
-  seq: 9
+  seq: 10
 }
 
 get {
@@ -16,5 +16,5 @@ auth:bearer {
 
 assert {
   res.status: eq 200
-  res.body.data: isArray 
+  res.body.data: isArray
 }

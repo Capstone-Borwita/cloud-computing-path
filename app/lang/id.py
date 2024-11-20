@@ -15,6 +15,7 @@ indonesia_fields = {
     "georeverse": "georeverse",
     "avatar": "foto profil",
     "ktp_photo": "foto KTP",
+    "ktp_photo_identifier": "token foto KTP",
     "store_photo": "foto toko",
     "store_id": "ID toko",
 }

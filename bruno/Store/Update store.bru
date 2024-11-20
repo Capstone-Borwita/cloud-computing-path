@@ -1,7 +1,7 @@
 meta {
-  name: Update store with invalid format
+  name: Update store
   type: http
-  seq: 7
+  seq: 8
 }
 
 put {
@@ -17,9 +17,9 @@ auth:bearer {
 body:multipart-form {
   keeper_name: Budi Setiawan
   keeper_address: Jl. Wow
-  store_photo: @file(files/foo.txt)
+  ktp_photo_identifier: {{ktp_photo_identifier_2}}
 }
 
 assert {
-  res.body.message: contains 'tidak valid'
+  res.status: eq 200
 }
