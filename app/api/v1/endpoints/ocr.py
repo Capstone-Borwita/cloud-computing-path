@@ -2,22 +2,17 @@ import random
 import string
 from fastapi import (
     APIRouter,
-    status,
     Depends,
     UploadFile,
     File,
 )
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 from pathlib import Path
 from app.models.user import User
 from app.schemas.model_schema import KTP_OCR_Result
-from app.schemas.response_schema import (
-    SuccessDataResponse,
-    InvalidRequestResponse,
-)
+from app.schemas.response_schema import SuccessDataResponse
 from app.utils.utils import get_current_user
 from app.utils.images.ocr import OCR_IMAGE_PATH
+from app.utils.response import invalid_request_response
 from app.lang.id import indonesia_fields
 
 router = APIRouter()
@@ -40,13 +35,8 @@ def ocr_ktp(
     current_user: User = Depends(get_current_user),
 ) -> SuccessDataResponse[KTP_OCR_Result]:
     if ktp_photo.content_type not in ALLOWED_IMAGE_TYPES:
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content=jsonable_encoder(
-                InvalidRequestResponse(
-                    message=f"Kolom {indonesia_fields['ktp_photo']} tidak valid. Hanya boleh JPEG atau PNG"
-                )
-            ),
+        return invalid_request_response(
+            f"Kolom {indonesia_fields['ktp_photo']} tidak valid. Hanya boleh JPEG atau PNG"
         )
 
     ktp_photo_filename = generate_random_filename(ktp_photo.filename)

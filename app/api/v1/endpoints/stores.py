@@ -12,8 +12,6 @@ from fastapi import (
     File,
     Form,
 )
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 from pydantic_extra_types.coordinate import Longitude, Latitude
 from sqlmodel import select
 from pathlib import Path
@@ -25,12 +23,12 @@ from app.schemas.response_schema import (
     SuccessIdResponse,
     SuccessDataResponse,
     SuccessResponse,
-    InvalidRequestResponse,
 )
 from app.utils.utils import get_current_user
 from app.utils.images.ocr import OCR_IMAGE_PATH
 from app.utils.images.ktp import KTP_IMAGE_PATH
 from app.utils.images.store import STORE_IMAGE_PATH
+from app.utils.response import invalid_request_response
 from app.lang.id import indonesia_fields
 from app.core.config import settings
 
@@ -66,26 +64,16 @@ def create_store(
     current_user: User = Depends(get_current_user),
 ) -> SuccessIdResponse:
     if store_photo.content_type not in ALLOWED_IMAGE_TYPES:
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content=jsonable_encoder(
-                InvalidRequestResponse(
-                    message=f"Kolom {indonesia_fields['store_photo']} tidak valid. Hanya boleh JPEG atau PNG"
-                )
-            ),
+        return invalid_request_response(
+            f"Kolom {indonesia_fields['store_photo']} tidak valid. Hanya boleh JPEG atau PNG"
         )
 
     temp_ktp_photo_path = (
         OCR_IMAGE_PATH / f"{current_user.id}_ktp_{ktp_photo_identifier}"
     )
     if not os.path.exists(temp_ktp_photo_path):
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content=jsonable_encoder(
-                InvalidRequestResponse(
-                    message=f"Kolom {indonesia_fields['ktp_photo']} tidak valid"
-                )
-            ),
+        return invalid_request_response(
+            f"Kolom {indonesia_fields['ktp_photo']} tidak valid"
         )
 
     ktp_photo_filename = generate_random_filename(keeper_nik, ktp_photo_identifier)
@@ -176,13 +164,8 @@ def update_store(
             OCR_IMAGE_PATH / f"{current_user.id}_ktp_{ktp_photo_identifier}"
         )
         if not os.path.exists(temp_ktp_photo_path):
-            return JSONResponse(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                content=jsonable_encoder(
-                    InvalidRequestResponse(
-                        message=f"Kolom {indonesia_fields['ktp_photo']} tidak valid"
-                    )
-                ),
+            return invalid_request_response(
+                f"Kolom {indonesia_fields['ktp_photo']} tidak valid"
             )
 
         if store.ktp_photo_path and os.path.exists(store.ktp_photo_path):
@@ -199,13 +182,8 @@ def update_store(
 
     if store_photo:
         if store_photo.content_type not in ALLOWED_IMAGE_TYPES:
-            return JSONResponse(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                content=jsonable_encoder(
-                    InvalidRequestResponse(
-                        message=f"Kolom {indonesia_fields['store_photo']} tidak valid. Hanya boleh JPEG atau PNG"
-                    )
-                ),
+            return invalid_request_response(
+                f"Kolom {indonesia_fields['store_photo']} tidak valid. Hanya boleh JPEG atau PNG"
             )
 
         if store.store_photo_path and os.path.exists(store.store_photo_path):

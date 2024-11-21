@@ -1,14 +1,12 @@
 import uvicorn
-from fastapi import FastAPI, status
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.utils import get_openapi
 from app.api.v1.api import api_router as api_router_v1
 from app.core.config import settings, ModeEnum
 from app.database import create_db_and_tables
-from app.schemas.response_schema import InvalidRequestResponse
+from app.utils.response import invalid_request_response
 from app.lang.id import indonesia_fields
 
 
@@ -46,10 +44,7 @@ async def custom_form_validation_error(_, exception: RequestValidationError):
     fields = " dan".join(", ".join(fields).rsplit(",", 1))
     message = f"Kolom {fields} tidak valid"
 
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder(InvalidRequestResponse(message=message)),
-    )
+    return invalid_request_response(message)
 
 
 def custom_openapi():
