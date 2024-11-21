@@ -158,6 +158,6 @@ def profile(
         data=UserGet(
             email=current_user.email,
             name=current_user.name,
-            avatar_path=settings.ORIGIN + current_user.avatar_path,
+            avatar_path=settings.ORIGIN + "/" + current_user.avatar_path,
         )
     )

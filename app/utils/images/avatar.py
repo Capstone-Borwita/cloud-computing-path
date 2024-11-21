@@ -10,4 +10,4 @@ default_user_avatars = listdir(DEFAULT_USER_AVATAR_PATH)
 
 
 def random_user_avatar() -> str:
-    return f"/{DEFAULT_USER_AVATAR_PATH}/{random.choice(default_user_avatars)}"
+    return str(DEFAULT_USER_AVATAR_PATH / random.choice(default_user_avatars))

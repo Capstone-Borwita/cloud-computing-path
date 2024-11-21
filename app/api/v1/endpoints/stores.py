@@ -234,8 +234,8 @@ def get_all_stores(
     stores = session.exec(select(Store).where(User.id == current_user.id)).all()
 
     for store in stores:
-        store.ktp_photo_path = settings.ORIGIN + store.ktp_photo_path
-        store.store_photo_path = settings.ORIGIN + store.store_photo_path
+        store.ktp_photo_path = settings.ORIGIN + "/" + store.ktp_photo_path
+        store.store_photo_path = settings.ORIGIN + "/" + store.store_photo_path
 
     return SuccessDataResponse(data=stores)
 
@@ -251,8 +251,8 @@ def get_store_by_id(
     if not store:
         raise HTTPException(status_code=404, detail="Store not found.")
 
-    store.ktp_photo_path = settings.ORIGIN + store.ktp_photo_path
-    store.store_photo_path = settings.ORIGIN + store.store_photo_path
+    store.ktp_photo_path = settings.ORIGIN + "/" + store.ktp_photo_path
+    store.store_photo_path = settings.ORIGIN + "/" + store.store_photo_path
 
     return SuccessDataResponse(data=store)
 
