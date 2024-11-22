@@ -55,8 +55,6 @@ def create_news(
         session.add(new_news)
         session.commit()
         session.refresh(new_news)
-        
-
 
         return SuccessDataResponse[News](data=new_news)
 
@@ -68,7 +66,7 @@ def update_news(
     news_id: int,
     title: str = Form(...),
     content: str = Form(...),
-    image: Optional[UploadFile] = File(None),  # Image is optional for updates
+    image: Optional[UploadFile] = File(None),
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
@@ -78,7 +76,6 @@ def update_news(
     if not content.strip():
         raise HTTPException(status_code=400, detail="Content cannot be empty")
 
-    # Fetch the existing news item
     news_item = session.query(News).filter(News.id == news_id).first()
 
     if not news_item:
@@ -87,18 +84,15 @@ def update_news(
     if news_item.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to update this news")
 
-    # Update title and content
     news_item.title = title
     news_item.content = content
 
-    # If a new image is provided, process it
     if image:
         if image.content_type not in ALLOWED_IMAGE_TYPES:
             raise HTTPException(
                 status_code=400, detail="Unsupported file type. Use jpeg, jpg, or png only."
             )
 
-        # Delete the old image if it exists
         if news_item.image and os.path.exists(news_item.image.replace(settings.ORIGIN + "/", "")):
             try:
                 os.remove(news_item.image.replace(settings.ORIGIN + "/", ""))
@@ -107,7 +101,6 @@ def update_news(
                     status_code=500, detail="Failed to delete old image"
                 )
 
-        # Save the new image
         file_extension = pathlib.Path(image.filename).suffix[1:].lower()
         unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
         file_path = pathlib.Path(UPLOAD_FOLDER) / unique_filename
@@ -116,13 +109,11 @@ def update_news(
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(image.file, buffer)
 
-            # Update image URL with the origin
             news_item.image = f"{settings.ORIGIN}/{str(file_path)}"
 
         except Exception as e:
             raise HTTPException(status_code=500, detail="Failed to upload new image")
 
-    # Save the changes to the database
     try:
         session.commit()
         session.refresh(news_item)
