@@ -5,9 +5,13 @@ meta {
 }
 
 put {
-  url: {{base_url}}/api/{{api_version}}/news/1
+  url: {{base_url}}/api/{{api_version}}/news/11
   body: multipartForm
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: JTxdpYRt6ZTnySoxi46bX61tT4q3lTIA
 }
 
 body:multipart-form {

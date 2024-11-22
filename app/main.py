@@ -17,6 +17,7 @@ app = FastAPI(
 )
 
 app.mount("/images", StaticFiles(directory="images"), name="static")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 @app.on_event("startup")

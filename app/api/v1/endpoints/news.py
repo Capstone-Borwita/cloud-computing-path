@@ -10,8 +10,9 @@ from app.models.news import News, NewsCreate, NewsUpdate, NewsGet
 from app.schemas.response_schema import SuccessDataResponse
 from app.schemas.response_schema import InvalidRequestResponse
 from app.core.config import settings 
-from pathlib import Path
 import shutil
+from pathlib import Path
+import pathlib
 from app.utils.utils import get_current_user
 from app.models.user import User
 
@@ -32,67 +33,52 @@ def create_news(
     current_user: User = Depends(get_current_user)
 ):
     if not title.strip():
-        return JSONResponse(
-            status_code=400,
-            content=InvalidRequestResponse(message="Title cannot be empty").dict(),
-        )
+        raise HTTPException(status_code=400, detail="Title cannot be empty")
 
     if not content.strip():
-        return JSONResponse(
-            status_code=400,
-            content=InvalidRequestResponse(message="Content cannot be empty").dict(),
-        )
+        raise HTTPException(status_code=400, detail="Content cannot be empty")
 
     if image.content_type not in ALLOWED_IMAGE_TYPES:
-        return JSONResponse(
-            status_code=400,
-            content=InvalidRequestResponse(message="Unsupported file types, please use jpeg, jpg, and png only").dict(),
-        )
+        raise HTTPException(status_code=400, detail="Unsupported file types, please use jpeg, jpg, and png only")
 
-    file_extension = image.filename.split(".")[-1].lower()
+    file_extension = pathlib.Path(image.filename).suffix[1:].lower()
     unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
-    file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+    file_path = pathlib.Path(UPLOAD_FOLDER) / unique_filename
 
     try:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
 
-        new_news = News(title=title, content=content, image=file_path,  user_id=current_user.id,)
+        image_url = f"{settings.ORIGIN}/{str(file_path)}"
+
+        new_news = News(title=title, content=content, image=image_url, user_id=current_user.id)
         session.add(new_news)
         session.commit()
         session.refresh(new_news)
+        
 
-        new_news.image = settings.ORIGIN + "/" + new_news.image
 
         return SuccessDataResponse[News](data=new_news)
 
     except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content=InvalidRequestResponse(message="Failed to create news").dict(),
-        )
+        raise HTTPException(status_code=500, detail="Failed to create news")
 
 @router.put("/{news_id}", response_model=SuccessDataResponse[News])
 def update_news(
-    news_id: int, 
-    title: str = Form(...), 
-    content: str = Form(...), 
-    image: UploadFile = File(None), 
-    session: Session = Depends(get_session), 
+    news_id: int,
+    title: str = Form(...),
+    content: str = Form(...),
+    image: Optional[UploadFile] = File(None),  # Image is optional for updates
+    session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
     if not title.strip():
-        return JSONResponse(
-            status_code=400,
-            content=InvalidRequestResponse(message="Title cannot be empty").dict(),
-        )
+        raise HTTPException(status_code=400, detail="Title cannot be empty")
     
     if not content.strip():
-        return JSONResponse(
-            status_code=400,
-            content=InvalidRequestResponse(message="Content cannot be empty").dict(),
-        )
+        raise HTTPException(status_code=400, detail="Content cannot be empty")
 
+    # Fetch the existing news item
     news_item = session.query(News).filter(News.id == news_id).first()
 
     if not news_item:
@@ -101,55 +87,52 @@ def update_news(
     if news_item.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to update this news")
 
+    # Update title and content
     news_item.title = title
     news_item.content = content
 
+    # If a new image is provided, process it
     if image:
         if image.content_type not in ALLOWED_IMAGE_TYPES:
-            return JSONResponse(
-                status_code=400,
-                content=InvalidRequestResponse(message="Unsupported file type").dict(),
+            raise HTTPException(
+                status_code=400, detail="Unsupported file type. Use jpeg, jpg, or png only."
             )
 
-        if news_item.image and os.path.exists(news_item.image):
+        # Delete the old image if it exists
+        if news_item.image and os.path.exists(news_item.image.replace(settings.ORIGIN + "/", "")):
             try:
-                os.remove(news_item.image)  
+                os.remove(news_item.image.replace(settings.ORIGIN + "/", ""))
             except Exception as e:
-                return JSONResponse(
-                    status_code=500,
-                    content=InvalidRequestResponse(message="Failed to delete old image").dict(),
+                raise HTTPException(
+                    status_code=500, detail="Failed to delete old image"
                 )
 
-        file_extension = image.filename.split(".")[-1].lower()
+        # Save the new image
+        file_extension = pathlib.Path(image.filename).suffix[1:].lower()
         unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
-        file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+        file_path = pathlib.Path(UPLOAD_FOLDER) / unique_filename
 
         try:
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(image.file, buffer)
 
-            news_item.image = file_path
+            # Update image URL with the origin
+            news_item.image = f"{settings.ORIGIN}/{str(file_path)}"
 
         except Exception as e:
-            return JSONResponse(
-                status_code=500,
-                content=InvalidRequestResponse(message="Failed to upload image").dict(),
-            )
+            raise HTTPException(status_code=500, detail="Failed to upload new image")
 
+    # Save the changes to the database
     try:
         session.commit()
         session.refresh(news_item)
 
-        news_item.image = settings.ORIGIN + "/" + news_item.image
-
         return SuccessDataResponse[News](data=news_item)
 
     except Exception as e:
-        session.rollback() 
-        return JSONResponse(
-            status_code=500,
-            content=InvalidRequestResponse(message="Failed to update news").dict(),
-        )
+        session.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update news")
+
 
 @router.get("/all", response_model=SuccessDataResponse[List[NewsGet]])
 def get_news(
