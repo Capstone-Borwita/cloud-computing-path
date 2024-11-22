@@ -1,0 +1,17 @@
+meta {
+  name: Create new news
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/news/
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  title: Judul 4
+  content: Content 4
+  image: @file(C:\Users\doniw\OneDrive\Pictures\Screenshot 2024-11-21 160244.png)
+}

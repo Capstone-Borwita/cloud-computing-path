@@ -1,0 +1,11 @@
+meta {
+  name: Get news list
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_url}}/api/{{api_version}}/news/
+  body: none
+  auth: none
+}

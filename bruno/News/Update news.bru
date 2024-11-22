@@ -1,0 +1,17 @@
+meta {
+  name: Update news
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/news/1
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  title: Judul 1
+  content: Content 1
+  image: @file(C:\Users\doniw\OneDrive\Pictures\Screenshot 2024-11-21 160244.png)
+}

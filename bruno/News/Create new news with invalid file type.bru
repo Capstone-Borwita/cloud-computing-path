@@ -1,0 +1,17 @@
+meta {
+  name: Create new news with invalid file type
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/news/
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  title: Judul 1
+  content: Content 1
+  image: @file(C:\Users\doniw\OneDrive\Documents\db.sqlite)
+}
