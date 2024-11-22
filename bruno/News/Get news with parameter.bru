@@ -1,15 +1,15 @@
 meta {
   name: Get news with parameter
   type: http
-  seq: 3
+  seq: 5
 }
 
 get {
-  url: {{base_url}}/api/{{api_version}}/news/?limit=3
+  url: {{base_url}}/api/{{api_version}}/news/all/?limit=2
   body: none
   auth: none
 }
 
 params:query {
-  limit: 3
+  limit: 2
 }
