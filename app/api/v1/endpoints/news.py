@@ -51,7 +51,7 @@ def create_news(
 
         image_url = f"{settings.ORIGIN}/{str(file_path)}"
 
-        new_news = News(title=title, content=content, image=image_url, user_id=current_user.id)
+        new_news = News(title=title, content=content, image=str(file_path), user_id=current_user.id)
         session.add(new_news)
         session.commit()
         session.refresh(new_news)
@@ -66,10 +66,11 @@ def update_news(
     news_id: int,
     title: str = Form(...),
     content: str = Form(...),
-    image: Optional[UploadFile] = File(None),
+    image: UploadFile = File(None),
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
+ 
     if not title.strip():
         raise HTTPException(status_code=400, detail="Title cannot be empty")
     
@@ -77,7 +78,6 @@ def update_news(
         raise HTTPException(status_code=400, detail="Content cannot be empty")
 
     news_item = session.query(News).filter(News.id == news_id).first()
-
     if not news_item:
         raise HTTPException(status_code=404, detail="News not found")
     
@@ -89,17 +89,12 @@ def update_news(
 
     if image:
         if image.content_type not in ALLOWED_IMAGE_TYPES:
-            raise HTTPException(
-                status_code=400, detail="Unsupported file type. Use jpeg, jpg, or png only."
-            )
+            raise HTTPException(status_code=400, detail="Unsupported file types, please use jpeg, jpg, and png only")
 
-        if news_item.image and os.path.exists(news_item.image.replace(settings.ORIGIN + "/", "")):
-            try:
-                os.remove(news_item.image.replace(settings.ORIGIN + "/", ""))
-            except Exception as e:
-                raise HTTPException(
-                    status_code=500, detail="Failed to delete old image"
-                )
+        if news_item.image:
+            old_image_path = pathlib.Path(news_item.image)
+            if old_image_path.exists():
+                old_image_path.unlink()  
 
         file_extension = pathlib.Path(image.filename).suffix[1:].lower()
         unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
@@ -108,9 +103,8 @@ def update_news(
         try:
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(image.file, buffer)
-
-            news_item.image = f"{settings.ORIGIN}/{str(file_path)}"
-
+            
+            news_item.image = str(file_path)
         except Exception as e:
             raise HTTPException(status_code=500, detail="Failed to upload new image")
 
@@ -123,6 +117,7 @@ def update_news(
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=500, detail="Failed to update news")
+
 
 
 @router.get("/all", response_model=SuccessDataResponse[List[NewsGet]])
