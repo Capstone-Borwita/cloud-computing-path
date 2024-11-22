@@ -1,7 +1,7 @@
 from typing import Optional
-
 from sqlmodel import Field, SQLModel
 from fastapi import UploadFile, File
+from .user import User
 
 
 class BaseStore(SQLModel):
