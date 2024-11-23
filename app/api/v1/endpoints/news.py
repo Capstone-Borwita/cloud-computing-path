@@ -9,7 +9,6 @@ from fastapi import (
     File,
     Query,
     Form,
-    status,
 )
 from sqlalchemy.orm import Session
 from app.database import get_session
@@ -19,8 +18,10 @@ from app.core.config import settings
 import shutil
 from pathlib import Path
 from app.utils.images.news import NEWS_IMAGE_PATH
+from app.utils.response import invalid_request_response
 from app.utils.utils import get_current_user
 from app.models.user import User
+from app.lang.id import indonesia_fields
 
 
 router = APIRouter()
@@ -30,28 +31,15 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/jpg"}
 
 @router.post("/", response_model=SuccessDataResponse[News], status_code=201)
 def create_news(
-    title: str = Form(...),
-    content: str = Form(...),
+    title: str = Form(..., min_length=1),
+    content: str = Form(..., min_length=1),
     poster: UploadFile = File(...),
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    if not title.strip():
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Title cannot be empty",
-        )
-
-    if not content.strip():
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Content cannot be empty",
-        )
-
     if poster.content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Unsupported file types, please use jpeg, jpg, and png only",
+        return invalid_request_response(
+            f"Kolom {indonesia_fields['poster']} tidak valid. Hanya boleh JPEG atau PNG"
         )
 
     file_extension = Path(poster.filename).suffix[1:].lower()
@@ -83,24 +71,12 @@ def create_news(
 @router.put("/{news_id}", response_model=SuccessDataResponse[News])
 def update_news(
     news_id: int,
-    title: str = Form(...),
-    content: str = Form(...),
+    title: str = Form(..., min_length=1),
+    content: str = Form(..., min_length=1),
     poster: UploadFile = File(None),
     session: Session = Depends(get_session),
     _: User = Depends(get_current_user),
 ):
-    if not title.strip():
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Title cannot be empty",
-        )
-
-    if not content.strip():
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Content cannot be empty",
-        )
-
     news_item = session.query(News).filter(News.id == news_id).first()
     if not news_item:
         raise HTTPException(status_code=404, detail="News not found")
@@ -110,9 +86,8 @@ def update_news(
 
     if poster:
         if poster.content_type not in ALLOWED_IMAGE_TYPES:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Unsupported file types, please use jpeg, jpg, and png only",
+            return invalid_request_response(
+                f"Kolom {indonesia_fields['poster']} tidak valid. Hanya boleh JPEG atau PNG"
             )
 
         if news_item.poster:
@@ -188,7 +163,7 @@ def delete_news(
     news_item = session.query(News).filter(News.id == news_id).first()
 
     if not news_item:
-        raise HTTPException(status_code=404, detail="News not found or access denied")
+        raise HTTPException(status_code=404, detail="News not found")
 
     if news_item.poster and os.path.exists(news_item.poster):
         try:
