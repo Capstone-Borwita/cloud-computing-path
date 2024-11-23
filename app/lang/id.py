@@ -18,4 +18,8 @@ indonesia_fields = {
     "ktp_photo_identifier": "token foto KTP",
     "store_photo": "foto toko",
     "store_id": "ID toko",
+    "title": "judul",
+    "content": "konten",
+    "poster": "poster",
+    "news_id": "ID berita",
 }

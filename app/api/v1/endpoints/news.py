@@ -18,15 +18,12 @@ from app.schemas.response_schema import SuccessDataResponse
 from app.core.config import settings
 import shutil
 from pathlib import Path
-import pathlib
+from app.utils.images.news import NEWS_IMAGE_PATH
 from app.utils.utils import get_current_user
 from app.models.user import User
 
 
 router = APIRouter()
-
-UPLOAD_FOLDER = "uploads/news"
-Path(UPLOAD_FOLDER).mkdir(parents=True, exist_ok=True)
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/jpg"}
 
@@ -35,7 +32,7 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/jpg"}
 def create_news(
     title: str = Form(...),
     content: str = Form(...),
-    image: UploadFile = File(...),
+    poster: UploadFile = File(...),
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
@@ -51,24 +48,24 @@ def create_news(
             detail="Content cannot be empty",
         )
 
-    if image.content_type not in ALLOWED_IMAGE_TYPES:
+    if poster.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Unsupported file types, please use jpeg, jpg, and png only",
         )
 
-    file_extension = pathlib.Path(image.filename).suffix[1:].lower()
+    file_extension = Path(poster.filename).suffix[1:].lower()
     unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
-    file_path = pathlib.Path(UPLOAD_FOLDER) / unique_filename
+    file_path = NEWS_IMAGE_PATH / unique_filename
 
     try:
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(image.file, buffer)
+            shutil.copyfileobj(poster.file, buffer)
 
         image_url = f"{settings.ORIGIN}/{str(file_path)}"
 
         new_news = News(
-            title=title, content=content, image=str(file_path), user_id=current_user.id
+            title=title, content=content, poster=str(file_path), user_id=current_user.id
         )
         session.add(new_news)
         session.commit()
@@ -85,7 +82,7 @@ def update_news(
     news_id: int,
     title: str = Form(...),
     content: str = Form(...),
-    image: UploadFile = File(None),
+    poster: UploadFile = File(None),
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
@@ -113,29 +110,29 @@ def update_news(
     news_item.title = title
     news_item.content = content
 
-    if image:
-        if image.content_type not in ALLOWED_IMAGE_TYPES:
+    if poster:
+        if poster.content_type not in ALLOWED_IMAGE_TYPES:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Unsupported file types, please use jpeg, jpg, and png only",
             )
 
-        if news_item.image:
-            old_image_path = pathlib.Path(news_item.image)
-            if old_image_path.exists():
-                old_image_path.unlink()
+        if news_item.poster:
+            old_poster_path = Path(news_item.poster)
+            if old_poster_path.exists():
+                old_poster_path.unlink()
 
-        file_extension = pathlib.Path(image.filename).suffix[1:].lower()
+        file_extension = Path(poster.filename).suffix[1:].lower()
         unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
-        file_path = pathlib.Path(UPLOAD_FOLDER) / unique_filename
+        file_path = NEWS_IMAGE_PATH / unique_filename
 
         try:
             with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(image.file, buffer)
+                shutil.copyfileobj(poster.file, buffer)
 
-            news_item.image = str(file_path)
+            news_item.poster = str(file_path)
         except Exception as e:
-            raise HTTPException(status_code=500, detail="Failed to upload new image")
+            raise HTTPException(status_code=500, detail="Failed to upload new poster")
 
     try:
         session.commit()
@@ -159,8 +156,8 @@ def get_news(
         raise HTTPException(status_code=404, detail="No news found")
 
     for news_item in news_items:
-        if news_item.image:
-            news_item.image = settings.ORIGIN + "/" + news_item.image
+        if news_item.poster:
+            news_item.poster = settings.ORIGIN + "/" + news_item.poster
 
     return SuccessDataResponse(data=news_items)
 
@@ -179,8 +176,8 @@ def get_news(
         raise HTTPException(status_code=404, detail="No news found for this user")
 
     for news_item in news_items:
-        if news_item.image:
-            news_item.image = settings.ORIGIN + "/" + news_item.image
+        if news_item.poster:
+            news_item.poster = settings.ORIGIN + "/" + news_item.poster
 
     return SuccessDataResponse(data=news_items)
 
@@ -195,8 +192,8 @@ def get_news_by_id(
     if not news_item:
         raise HTTPException(status_code=404, detail="News not found")
 
-    if news_item.image:
-        news_item.image = settings.ORIGIN + "/" + news_item.image
+    if news_item.poster:
+        news_item.poster = settings.ORIGIN + "/" + news_item.poster
 
     return SuccessDataResponse[News](data=news_item)
 
@@ -216,12 +213,12 @@ def delete_news(
     if not news_item:
         raise HTTPException(status_code=404, detail="News not found or access denied")
 
-    if news_item.image and os.path.exists(news_item.image):
+    if news_item.poster and os.path.exists(news_item.poster):
         try:
-            os.remove(news_item.image)
+            os.remove(news_item.poster)
         except Exception as e:
             raise HTTPException(
-                status_code=500, detail=f"Failed to delete image: {str(e)}"
+                status_code=500, detail=f"Failed to delete poster: {str(e)}"
             )
 
     try:
