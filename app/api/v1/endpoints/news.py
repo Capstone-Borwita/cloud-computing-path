@@ -142,7 +142,7 @@ def get_news(
 def get_news_by_id(
     news_id: int,
     session: Session = Depends(get_session),
-):
+    _: User = Depends(get_current_user),
     news_item = session.query(News).filter(News.id == news_id).first()
 
     if not news_item:
