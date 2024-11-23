@@ -62,8 +62,6 @@ def create_news(
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(poster.file, buffer)
 
-        image_url = f"{settings.ORIGIN}/{str(file_path)}"
-
         new_news = News(
             title=title,
             content=content,
@@ -73,6 +71,8 @@ def create_news(
         session.add(new_news)
         session.commit()
         session.refresh(new_news)
+
+        new_news.poster = settings.ORIGIN + "/" + new_news.poster
 
         return SuccessDataResponse[News](data=new_news)
 
@@ -135,6 +135,8 @@ def update_news(
     try:
         session.commit()
         session.refresh(news_item)
+
+        news_item.poster = settings.ORIGIN + "/" + news_item.poster
 
         return SuccessDataResponse[News](data=news_item)
 
