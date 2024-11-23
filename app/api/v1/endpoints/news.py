@@ -65,7 +65,10 @@ def create_news(
         image_url = f"{settings.ORIGIN}/{str(file_path)}"
 
         new_news = News(
-            title=title, content=content, poster=str(file_path), user_id=current_user.id
+            title=title,
+            content=content,
+            poster=str(file_path),
+            author_id=current_user.id,
         )
         session.add(new_news)
         session.commit()
@@ -84,7 +87,7 @@ def update_news(
     content: str = Form(...),
     poster: UploadFile = File(None),
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    _: User = Depends(get_current_user),
 ):
     if not title.strip():
         raise HTTPException(
@@ -101,11 +104,6 @@ def update_news(
     news_item = session.query(News).filter(News.id == news_id).first()
     if not news_item:
         raise HTTPException(status_code=404, detail="News not found")
-
-    if news_item.user_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not authorized to update this news"
-        )
 
     news_item.title = title
     news_item.content = content
@@ -166,11 +164,9 @@ def get_news(
 def get_news(
     limit: int = Query(10, le=100),
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    _: User = Depends(get_current_user),
 ):
-    news_items = (
-        session.query(News).filter(News.user_id == current_user.id).limit(limit).all()
-    )
+    news_items = session.query(News).limit(limit).all()
 
     if not news_items:
         raise HTTPException(status_code=404, detail="No news found for this user")
@@ -202,13 +198,9 @@ def get_news_by_id(
 def delete_news(
     news_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    _: User = Depends(get_current_user),
 ):
-    news_item = (
-        session.query(News)
-        .filter(News.id == news_id, News.user_id == current_user.id)
-        .first()
-    )
+    news_item = session.query(News).filter(News.id == news_id).first()
 
     if not news_item:
         raise HTTPException(status_code=404, detail="News not found or access denied")

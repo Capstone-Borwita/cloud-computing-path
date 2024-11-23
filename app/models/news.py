@@ -9,14 +9,14 @@ class BaseNews(SQLModel):
     content: str = Field()
     poster: str = Field()
     created_at: Optional[datetime] = Field(default_factory=datetime.utcnow, index=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    author_id: Optional[int] = Field(default=None, foreign_key="user.id")
 
 
 class NewsCreate(BaseModel):
     title: str
     content: str
     poster: str
-    user_id: int
+    author_id: int
 
 
 class NewsGet(BaseModel):
@@ -25,7 +25,7 @@ class NewsGet(BaseModel):
     content: str
     poster: str
     created_at: Optional[datetime]
-    user_id: int
+    author_id: int
 
 
 class NewsUpdate(BaseModel):
