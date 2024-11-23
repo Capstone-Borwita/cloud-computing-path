@@ -1,7 +1,16 @@
 import uuid
 import os
 from typing import List
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Query, Form
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Depends,
+    UploadFile,
+    File,
+    Query,
+    Form,
+    status,
+)
 from sqlalchemy.orm import Session
 from app.database import get_session
 from app.models.news import News, NewsGet
@@ -31,14 +40,20 @@ def create_news(
     current_user: User = Depends(get_current_user),
 ):
     if not title.strip():
-        raise HTTPException(status_code=400, detail="Title cannot be empty")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Title cannot be empty",
+        )
 
     if not content.strip():
-        raise HTTPException(status_code=400, detail="Content cannot be empty")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Content cannot be empty",
+        )
 
     if image.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Unsupported file types, please use jpeg, jpg, and png only",
         )
 
@@ -75,10 +90,16 @@ def update_news(
     current_user: User = Depends(get_current_user),
 ):
     if not title.strip():
-        raise HTTPException(status_code=400, detail="Title cannot be empty")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Title cannot be empty",
+        )
 
     if not content.strip():
-        raise HTTPException(status_code=400, detail="Content cannot be empty")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Content cannot be empty",
+        )
 
     news_item = session.query(News).filter(News.id == news_id).first()
     if not news_item:
@@ -95,7 +116,7 @@ def update_news(
     if image:
         if image.content_type not in ALLOWED_IMAGE_TYPES:
             raise HTTPException(
-                status_code=400,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Unsupported file types, please use jpeg, jpg, and png only",
             )
 
