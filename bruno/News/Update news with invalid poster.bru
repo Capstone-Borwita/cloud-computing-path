@@ -1,11 +1,11 @@
 meta {
-  name: Create new news with invalid file type
+  name: Update news with invalid poster
   type: http
-  seq: 1
+  seq: 11
 }
 
-post {
-  url: {{base_url}}/api/{{api_version}}/news/
+put {
+  url: {{base_url}}/api/{{api_version}}/news/{{news_id}}
   body: multipartForm
   auth: bearer
 }
@@ -15,8 +15,8 @@ auth:bearer {
 }
 
 body:multipart-form {
-  title: Judul 1
-  content: Content 1
+  title: Judul 3
+  content: Content 3
   poster: @file(files/foo.txt)
 }
 

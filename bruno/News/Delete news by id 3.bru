@@ -1,0 +1,23 @@
+meta {
+  name: Delete news by id 3
+  type: http
+  seq: 17
+}
+
+delete {
+  url: {{base_url}}/api/{{api_version}}/news/{{news_id_3}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  bru.setVar('news_id', res.body.data.id)
+}

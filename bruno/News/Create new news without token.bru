@@ -1,7 +1,7 @@
 meta {
   name: Create new news without token
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
@@ -13,5 +13,9 @@ post {
 body:multipart-form {
   title: Judul 1
   content: Content 1
-  image: @file(C:\Users\doniw\OneDrive\Pictures\Screenshot 2024-11-21 160244.png)
+  poster: @file(files/red_1x1.png)
+}
+
+assert {
+  res.status: eq 401
 }

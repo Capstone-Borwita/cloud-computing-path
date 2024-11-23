@@ -1,11 +1,11 @@
 meta {
   name: Update news without token
   type: http
-  seq: 11
+  seq: 12
 }
 
 put {
-  url: {{base_url}}/api/{{api_version}}/news/1
+  url: {{base_url}}/api/{{api_version}}/news/{{news_id}}
   body: multipartForm
   auth: none
 }
@@ -13,5 +13,9 @@ put {
 body:multipart-form {
   title: Judul 1 Update
   content: Content 1 Update
-  image: @file(C:\Users\doniw\OneDrive\Pictures\Screenshot 2024-11-21 160244.png)
+  poster: @file(files/orange_1x1.png)
+}
+
+assert {
+  res.status: eq 401
 }

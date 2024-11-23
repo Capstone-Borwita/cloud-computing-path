@@ -1,7 +1,7 @@
 meta {
-  name: Create new news with invalid file type
+  name: Create new news 2
   type: http
-  seq: 1
+  seq: 4
 }
 
 post {
@@ -17,9 +17,13 @@ auth:bearer {
 body:multipart-form {
   title: Judul 1
   content: Content 1
-  poster: @file(files/foo.txt)
+  poster: @file(files/red_1x1.png)
 }
 
 assert {
-  res.status: eq 422
+  res.status: eq 201
+}
+
+script:post-response {
+  bru.setVar('news_id_2', res.body.data.id)
 }

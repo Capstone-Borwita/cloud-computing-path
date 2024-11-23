@@ -5,7 +5,11 @@ meta {
 }
 
 delete {
-  url: {{base_url}}/api/{{api_version}}/news/1
+  url: {{base_url}}/api/{{api_version}}/news/{{news_id}}
   body: none
   auth: none
+}
+
+assert {
+  res.status: eq 401
 }

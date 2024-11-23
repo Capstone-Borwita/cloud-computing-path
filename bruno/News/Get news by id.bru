@@ -1,11 +1,19 @@
 meta {
   name: Get news by id
   type: http
-  seq: 4
+  seq: 6
 }
 
 get {
-  url: {{base_url}}/api/{{api_version}}/news/1
+  url: {{base_url}}/api/{{api_version}}/news/{{news_id}}
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+assert {
+  res.status: eq 200
 }
