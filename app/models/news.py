@@ -19,15 +19,6 @@ class NewsCreate(BaseModel):
     author_id: int
 
 
-class NewsGet(BaseModel):
-    id: int
-    title: str
-    content: str
-    poster: str
-    created_at: Optional[datetime]
-    author_id: int
-
-
 class NewsUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None

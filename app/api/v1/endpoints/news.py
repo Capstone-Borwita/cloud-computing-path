@@ -12,8 +12,13 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 from app.database import get_session
-from app.models.news import News, NewsGet
-from app.schemas.response_schema import SuccessDataResponse
+from app.models.news import News
+from app.schemas.model_schema import ModelId
+from app.schemas.response_schema import (
+    SuccessIdResponse,
+    SuccessDataResponse,
+    SuccessResponse,
+)
 from app.core.config import settings
 import shutil
 from pathlib import Path
@@ -29,14 +34,14 @@ router = APIRouter()
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/jpg"}
 
 
-@router.post("/", response_model=SuccessDataResponse[News], status_code=201)
+@router.post("/", status_code=201)
 def create_news(
     title: str = Form(..., min_length=1),
     content: str = Form(..., min_length=1),
     poster: UploadFile = File(...),
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
-):
+) -> SuccessIdResponse:
     if poster.content_type not in ALLOWED_IMAGE_TYPES:
         return invalid_request_response(
             f"Kolom {indonesia_fields['poster']} tidak valid. Hanya boleh JPEG atau PNG"
@@ -60,15 +65,13 @@ def create_news(
         session.commit()
         session.refresh(new_news)
 
-        new_news.poster = settings.ORIGIN + "/" + new_news.poster
-
-        return SuccessDataResponse[News](data=new_news)
+        return SuccessIdResponse(data=ModelId(id=new_news.id))
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to create news")
 
 
-@router.put("/{news_id}", response_model=SuccessDataResponse[News])
+@router.put("/{news_id}")
 def update_news(
     news_id: int,
     title: str = Form(..., min_length=1),
@@ -76,7 +79,7 @@ def update_news(
     poster: UploadFile = File(None),
     session: Session = Depends(get_session),
     _: User = Depends(get_current_user),
-):
+) -> SuccessIdResponse:
     news_item = session.query(News).filter(News.id == news_id).first()
     if not news_item:
         raise HTTPException(status_code=404, detail="News not found")
@@ -113,19 +116,19 @@ def update_news(
 
         news_item.poster = settings.ORIGIN + "/" + news_item.poster
 
-        return SuccessDataResponse[News](data=news_item)
+        return SuccessIdResponse(data=ModelId(id=news_item.id))
 
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=500, detail="Failed to update news")
 
 
-@router.get("/", response_model=SuccessDataResponse[List[NewsGet]])
+@router.get("/")
 def get_news(
     limit: int = Query(10, le=100),
     session: Session = Depends(get_session),
     _: User = Depends(get_current_user),
-):
+) -> SuccessDataResponse[List[News]]:
     news_items = session.query(News).limit(limit).all()
 
     if not news_items:
@@ -138,11 +141,12 @@ def get_news(
     return SuccessDataResponse(data=news_items)
 
 
-@router.get("/{news_id}", response_model=SuccessDataResponse[News])
+@router.get("/{news_id}")
 def get_news_by_id(
     news_id: int,
     session: Session = Depends(get_session),
     _: User = Depends(get_current_user),
+) -> SuccessDataResponse[News]:
     news_item = session.query(News).filter(News.id == news_id).first()
 
     if not news_item:
@@ -151,15 +155,15 @@ def get_news_by_id(
     if news_item.poster:
         news_item.poster = settings.ORIGIN + "/" + news_item.poster
 
-    return SuccessDataResponse[News](data=news_item)
+    return SuccessDataResponse(data=news_item)
 
 
-@router.delete("/{news_id}", response_model=SuccessDataResponse[str])
+@router.delete("/{news_id}")
 def delete_news(
     news_id: int,
     session: Session = Depends(get_session),
     _: User = Depends(get_current_user),
-):
+) -> SuccessResponse:
     news_item = session.query(News).filter(News.id == news_id).first()
 
     if not news_item:
@@ -177,7 +181,7 @@ def delete_news(
         session.delete(news_item)
         session.commit()
 
-        return SuccessDataResponse[str](data="News deleted successfully")
+        return SuccessResponse()
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=500, detail="Failed to delete news")
