@@ -2,7 +2,7 @@ from typing import Optional
 from sqlmodel import Field, SQLModel
 from fastapi import UploadFile, File
 from .user import User
-
+from datetime import datetime
 
 class BaseStore(SQLModel):
     name: str = Field()
@@ -18,6 +18,8 @@ class BaseStore(SQLModel):
     latitude: str = Field()
     georeverse: str = Field()
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = Field(default=None, sa_column_kwargs={"onupdate": datetime.utcnow})
 
 
 class StoreCreate(BaseStore):

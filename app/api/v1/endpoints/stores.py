@@ -14,6 +14,7 @@ from fastapi import (
 )
 from pydantic_extra_types.coordinate import Longitude, Latitude
 from sqlmodel import select
+from sqlalchemy import desc
 from pathlib import Path
 from app.database import SessionDep
 from app.models.user import User
@@ -104,6 +105,7 @@ def create_store(
         ktp_photo_path=str(ktp_photo_path),
         store_photo_path=str(store_photo_path),
         user_id=current_user.id,
+        created_at=datetime.utcnow()
     )
 
     session.add(store)
@@ -199,6 +201,7 @@ def update_store(
 
         store.store_photo_path = str(store_photo_path)
 
+    store.updated_at = datetime.utcnow()
     session.commit()
     session.refresh(store)
 
@@ -209,7 +212,9 @@ def update_store(
 def get_all_stores(
     session: SessionDep, current_user: User = Depends(get_current_user)
 ) -> SuccessDataResponse[List[Store]]:
-    stores = session.exec(select(Store).where(User.id == current_user.id)).all()
+    stores = session.exec(
+        select(Store).where(User.id == current_user.id).order_by(desc(Store.created_at))
+    ).all()
 
     for store in stores:
         store.ktp_photo_path = settings.ORIGIN + "/" + store.ktp_photo_path
