@@ -17,7 +17,3 @@ auth:bearer {
 assert {
   res.status: eq 200
 }
-
-script:post-response {
-  bru.setVar('news_id', res.body.data.id)
-}
