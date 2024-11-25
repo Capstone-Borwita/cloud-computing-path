@@ -8,8 +8,11 @@ class BaseNews(SQLModel):
     title: str = Field()
     content: str = Field()
     poster: str = Field()
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow, index=True)
     author_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    updated_at: Optional[datetime] = Field(
+        default=None, sa_column_kwargs={"onupdate": datetime.utcnow}
+    )
 
 
 class NewsCreate(BaseModel):

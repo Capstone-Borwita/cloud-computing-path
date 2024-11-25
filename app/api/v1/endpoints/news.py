@@ -11,6 +11,7 @@ from fastapi import (
     Form,
 )
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 from app.database import get_session
 from app.models.news import News
 from app.schemas.model_schema import ModelId
@@ -129,7 +130,7 @@ def get_news(
     session: Session = Depends(get_session),
     _: User = Depends(get_current_user),
 ) -> SuccessDataResponse[List[News]]:
-    news_items = session.query(News).limit(limit).all()
+    news_items = session.query(News).order_by(desc(News.created_at)).limit(limit).all()
 
     for news_item in news_items:
         if news_item.poster:
