@@ -131,9 +131,6 @@ def get_news(
 ) -> SuccessDataResponse[List[News]]:
     news_items = session.query(News).limit(limit).all()
 
-    if not news_items:
-        raise HTTPException(status_code=404, detail="No news found")
-
     for news_item in news_items:
         if news_item.poster:
             news_item.poster = settings.ORIGIN + "/" + news_item.poster
