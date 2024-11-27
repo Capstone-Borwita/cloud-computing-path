@@ -15,12 +15,12 @@ auth:bearer {
 }
 
 body:multipart-form {
-  ktp_photo: @file(files/orange_1x1.png)
+  ktp_photo: @file(files/ktp_1.jpg)
 }
 
 assert {
   res.status: eq 200
-  res.body.data.identifier: isDefined 
+  res.body.data.identifier: isDefined
 }
 
 script:post-response {
