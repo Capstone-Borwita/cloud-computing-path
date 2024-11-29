@@ -105,7 +105,7 @@ def create_store(
         ktp_photo_path=str(ktp_photo_path),
         store_photo_path=str(store_photo_path),
         user_id=current_user.id,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
 
     session.add(store)
@@ -213,7 +213,9 @@ def get_all_stores(
     session: SessionDep, current_user: User = Depends(get_current_user)
 ) -> SuccessDataResponse[List[Store]]:
     stores = session.exec(
-        select(Store).where(User.id == current_user.id).order_by(desc(Store.created_at))
+        select(Store)
+        .where(Store.user_id == current_user.id)
+        .order_by(desc(Store.created_at))
     ).all()
 
     for store in stores:
