@@ -70,6 +70,9 @@ def ocr_ktp(
     if result is None:
         return invalid_request_response("KTP gagal dibaca")
 
+    if type(result) is str:
+        return invalid_request_response(result)
+
     return SuccessDataResponse(
         data=KTP_OCR_Result(
             identifier=ktp_photo_filename,
