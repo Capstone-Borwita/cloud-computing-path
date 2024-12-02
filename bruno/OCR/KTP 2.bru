@@ -1,7 +1,7 @@
 meta {
   name: KTP 2
   type: http
-  seq: 13
+  seq: 8
 }
 
 post {
@@ -20,7 +20,7 @@ body:multipart-form {
 
 assert {
   res.status: eq 200
-  res.body.data.identifier: isDefined 
+  res.body.data.identifier: isDefined
 }
 
 script:post-response {

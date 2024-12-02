@@ -1,0 +1,23 @@
+meta {
+  name: Censored KTP Address
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/ocr/ktp
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  ktp_photo: @file(files/censored_ktp_address.jpeg)
+}
+
+assert {
+  res.status: eq 422
+}
