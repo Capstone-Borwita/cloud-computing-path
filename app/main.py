@@ -85,9 +85,4 @@ app.include_router(api_router_v1, prefix=settings.API_V1_STR)
 
 def start():
     """Launched with `poetry run start` at root level"""
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=settings.PORT,
-        reload=settings.PORT not in [80, 443],
-    )
+    uvicorn.run("app.main:app", port=settings.PORT, reload=True)
