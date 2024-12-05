@@ -53,7 +53,8 @@ def create_store(
     owner_name: str = Form(..., min_length=1),
     keeper_phone_number: str = Form(..., regex=r"^0\d{6,15}$"),
     keeper_nik: str = Form(
-        ..., regex=r"^\d{6}(?:0[1-9]|[1-2][0-9]|3[0-1])(?:0[1-9]|1[0-2])\d{5}[1-9]$"
+        ...,
+        regex=r"^\d{6}(?:(?:0[1-9]|[1-2][0-9]|3[0-1])|(?:[4-6][0-9]|7[0-1]))(?:0[1-9]|1[0-2])\d{5}[1-9]$",
     ),
     keeper_name: str = Form(..., min_length=1),
     keeper_address: str = Form(..., min_length=1),
@@ -123,7 +124,8 @@ def update_store(
     owner_name: str = Form(None, min_length=1),
     keeper_phone_number: str = Form(None, regex=r"^0\d{6,15}$"),
     keeper_nik: str = Form(
-        None, regex=r"^\d{6}(?:0[1-9]|[1-2][0-9]|3[0-1])(?:0[1-9]|1[0-2])\d{5}[1-9]$"
+        None,
+        regex=r"^\d{6}(?:(?:0[1-9]|[1-2][0-9]|3[0-1])|(?:[4-6][0-9]|7[0-1]))(?:0[1-9]|1[0-2])\d{5}[1-9]$",
     ),
     keeper_name: str = Form(None, min_length=1),
     keeper_address: str = Form(None, min_length=1),
