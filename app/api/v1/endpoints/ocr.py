@@ -14,6 +14,7 @@ from app.utils.utils import get_current_user
 from app.utils.images.ocr import (
     OCR_IMAGE_PATH,
     OCR_SEGMENTATION_IMAGE_PATH,
+    OCR_ROTATED_IMAGE_PATH,
     OCR_CROPPED_IMAGE_PATH,
 )
 from app.utils.response import invalid_request_response
@@ -56,14 +57,17 @@ def ocr_ktp(
         f.write(ktp_photo.file.read())
 
     segmentation_path = OCR_SEGMENTATION_IMAGE_PATH / id
+    rotated_path = OCR_ROTATED_IMAGE_PATH / id
     cropped_path = OCR_CROPPED_IMAGE_PATH / id
 
     segmentation_path.mkdir()
+    rotated_path.mkdir()
     cropped_path.mkdir()
 
     result = ktp_ocr(
         ktp_photo_path.absolute().as_posix(),
         segmentation_path.absolute().as_posix(),
+        rotated_path.absolute().as_posix(),
         cropped_path.absolute().as_posix(),
     )
 
