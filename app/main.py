@@ -1,4 +1,7 @@
-import uvicorn
+from rich import print
+
+print("[green]INFO[/green]:     Starting application...")
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
@@ -81,8 +84,3 @@ def custom_openapi():
 app.openapi = custom_openapi
 
 app.include_router(api_router_v1, prefix=settings.API_V1_STR)
-
-
-def start():
-    """Launched with `poetry run start` at root level"""
-    uvicorn.run("app.main:app", port=settings.PORT, reload=True)
