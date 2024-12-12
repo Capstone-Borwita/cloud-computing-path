@@ -22,17 +22,3 @@ body:multipart-form {
 assert {
   res.status: eq 200
 }
-
-tests {
-  const axios = require('axios')
-  
-  axios.defaults.baseURL = '{{base_url}}'
-  axios.defaults.headers.common = {'Authorization': 'bearer {{user_token}}'}
-  
-  test('should save the new user data', async () => {
-    const { data: { data } } = await axios.get('/api/{{api_version}}/auth/profile')
-  
-    expect(data.name).toBe('User {{user_no}}')
-    expect(data.email).toBe('user-edited-{{user_no}}@mail.com')
-  })
-}

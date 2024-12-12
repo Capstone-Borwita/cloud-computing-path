@@ -1,0 +1,49 @@
+name: Run bruno test
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.8.4
+
+      - name: install dependencies
+        run: poetry install --no-interaction
+
+      - name: start server
+        run: nohup poetry run uvicorn app.main:app &
+
+      - name: install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: install bruno cli
+        run: npm install -g @usebruno/cli
+
+      - name: wait until server is ready
+        run: |
+          for i in {1..99}; do
+            if curl -s 'http://127.0.0.1:8000' > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          if ! curl -s 'http://127.0.0.1:8000' > /dev/null; then
+            echo "Server failed to start."
+
+            exit 1
+          fi
+
+      - name: run tests
+        run: bru run
