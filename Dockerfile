@@ -13,6 +13,8 @@ RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry export -f requirements.tx
 
 FROM python:3.12-slim AS runtime
 
+RUN apt-get update && apt-get install -y libgl1 libglib2.0-0 libsm6 libxrender1 libxext6
+
 WORKDIR /src
 
 COPY --from=builder /src/requirements.txt /src/requirements.txt
