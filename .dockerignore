@@ -1,0 +1,16 @@
+db.sqlite
+**/*.pyc
+**/*.ipynb
+**/.gitignore
+**/README.md
+**/requirements.txt
+bruno
+images/ml
+images/user-content
+modules/ml/batch-test
+modules/ml/KTP_Classifier
+modules/ml/Object_Detection_Bounding_Box
+modules/ml/OCR
+modules/ml/readjust_landscape
+modules/ml/SegmentationAndCrop
+modules/ml/testImages
