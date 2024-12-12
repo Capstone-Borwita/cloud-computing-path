@@ -48,4 +48,4 @@ jobs:
           fi
 
       - name: run tests
-        run: bru run
+        run: cd bruno && bru run
