@@ -1,0 +1,23 @@
+meta {
+  name: Truncated KTP NIK
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/ocr/ktp
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  ktp_photo: @file(files/truncated_ktp_nik.jpeg)
+}
+
+assert {
+  res.status: eq 422
+}

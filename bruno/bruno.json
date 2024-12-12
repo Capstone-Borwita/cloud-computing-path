@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "API KTP Borwita",
+  "type": "collection",
+  "ignore": ["node_modules", ".git", "User", "files"]
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Update store with invalid format
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/stores/{{store_id}}
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  keeper_name: Budi Setiawan
+  keeper_address: Jl. Wow
+  store_photo: @file(files/foo.txt)
+}
+
+assert {
+  res.body.message: contains 'tidak valid'
+}

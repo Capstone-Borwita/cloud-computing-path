@@ -1,0 +1,25 @@
+meta {
+  name: Create new news with invalid file type
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/news/
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  title: Judul 1
+  content: Content 1
+  poster: @file(files/foo.txt)
+}
+
+assert {
+  res.status: eq 422
+}

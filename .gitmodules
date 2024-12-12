@@ -1,0 +1,3 @@
+[submodule "modules/ml"]
+	path = modules/ml
+	url = https://github.com/Capstone-Borwita/machine-learning-path

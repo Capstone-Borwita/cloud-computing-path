@@ -1,0 +1,23 @@
+meta {
+  name: Edit profile with partial data
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/auth/edit-profile
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  email: user-edited@mail.com
+}
+
+assert {
+  res.status: eq 200
+}

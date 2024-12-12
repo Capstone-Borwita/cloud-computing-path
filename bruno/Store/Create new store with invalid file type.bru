@@ -1,0 +1,36 @@
+meta {
+  name: Create new store with invalid file type
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/stores/
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  name: Toko Serbaguna
+  owner_name: Setiawan
+  keeper_phone_number: 0895701614616
+  keeper_nik: 3202080504910003
+  keeper_name: Mira Setiawan
+  keeper_address: Jl. Pendowo
+  longitude: 128.27473
+  latitude: -20.06805
+  georeverse: '''
+    Jl. Pendowo 8-57
+    Limo, Kec. Limo, Kota Depok, Jawa Barat 16514
+  '''
+  ktp_photo_identifier: {{ktp_photo_identifier_1}}
+  store_photo: @file(files/foo.txt)
+}
+
+assert {
+  res.body.message: contains 'tidak valid'
+}

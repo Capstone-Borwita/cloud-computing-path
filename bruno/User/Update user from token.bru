@@ -1,0 +1,24 @@
+meta {
+  name: Update user from token
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/users/
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  email: user5@mail.com
+  name: user5update
+  avatar: @file(C:\Users\Administrator\Downloads\images.jpg)
+  new_password: 12345678
+  password_confirmation: 12345678
+  current_password: 12345678
+}

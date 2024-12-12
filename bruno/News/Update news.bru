@@ -1,0 +1,25 @@
+meta {
+  name: Update news
+  type: http
+  seq: 10
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/news/{{news_id}}
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  title: Judul 1 Update
+  content: Content 1 Update
+  poster: @file(files/orange_1x1.png)
+}
+
+assert {
+  res.status: eq 200
+}

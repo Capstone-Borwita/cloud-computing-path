@@ -1,0 +1,29 @@
+meta {
+  name: Create new news 3
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/news/
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  title: Judul 1
+  content: Content 1
+  poster: @file(files/red_1x1.png)
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:post-response {
+  bru.setVar('news_id_3', res.body.data.id)
+}

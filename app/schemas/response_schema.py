@@ -1,22 +1,31 @@
 from typing import Generic, TypeVar, Literal
 from pydantic import BaseModel
 
+from app.schemas.model_schema import ModelId, Credential
+
 T = TypeVar("T")
 
 
-class SuccessResponse(BaseModel, Generic[T]):
-    status: Literal["success"] = "success"
+class SuccessResponse(BaseModel):
+    detail: Literal["success"] = "success"
+
+
+class SuccessDataResponse(BaseModel, Generic[T]):
+    detail: Literal["success"] = "success"
     data: T
 
 
-class SuccessWithMessageResponse(SuccessResponse):
-    message: str
+class SuccessIdResponse(BaseModel):
+    detail: Literal["success"] = "success"
+    data: ModelId
 
 
-class ErrorResponse(BaseModel, Generic[T]):
-    status: Literal["error"] = "error"
-    data: T
+class CredentialResponse(BaseModel):
+    detail: Literal["success"] = "success"
+    data: Credential
 
 
-class ErrorWithMessageResponse(ErrorResponse):
+class InvalidRequestResponse(BaseModel):
+    detail: Literal["invalid"] = "invalid"
+    data: None = None
     message: str

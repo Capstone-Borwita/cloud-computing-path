@@ -1,0 +1,28 @@
+meta {
+  name: KTP 2
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/ocr/ktp
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  ktp_photo: @file(files/ktp_2.jpg)
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.identifier: isDefined
+}
+
+script:post-response {
+  bru.setVar('ktp_photo_identifier_2', res.body.data.identifier)
+}

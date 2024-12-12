@@ -7,7 +7,7 @@ authors = []
 include = "app"
 
 [tool.poetry.scripts]
-start = "app.main:start"
+dev = "app.script:dev"
 
 [tool.black]
 line-length = 88
@@ -36,6 +36,17 @@ asyncer = "^0.0.8"
 pydantic-settings = "^2.6.1"
 fastapi = {extras = ["standart"], version = "^0.115.4"}
 uvicorn = "^0.32.0"
+sqlmodel = "^0.0.22"
+bcrypt = "3.2.0"
+python-multipart = "^0.0.17"
+passlib = "^1.7.4"
+pydantic = {extras = ["email"], version = "^2.9.2"}
+pydantic-extra-types = {extras = ["latitude"], version = "^2.10.0"}
+ultralytics = "^8.3.38"
+imutils = "^0.5.4"
+opencv-python-headless = "^4.10.0.84"
+regex = "^2024.11.6"
+tensorflow-cpu = "^2.18.0"
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = [ "F401",]

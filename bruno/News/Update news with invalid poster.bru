@@ -1,0 +1,25 @@
+meta {
+  name: Update news with invalid poster
+  type: http
+  seq: 11
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/news/{{news_id}}
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  title: Judul 3
+  content: Content 3
+  poster: @file(files/foo.txt)
+}
+
+assert {
+  res.status: eq 422
+}

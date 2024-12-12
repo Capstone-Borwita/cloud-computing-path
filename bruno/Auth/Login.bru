@@ -1,0 +1,20 @@
+meta {
+  name: Login
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/auth/login
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  email: user{{user_no}}@mail.com
+  password: 12345678
+}
+
+assert {
+  res.body.data.token: eq {{user_token}}
+}

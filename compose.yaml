@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: capstoneborwitac242ak01/borwita-ktp-api:latest
+    volumes:
+      - ./images/ml:/src/images/ml
+      - ./images/user-content:/src/images/user-content
+      - ./data:/src/data
+    ports:
+      - "8000:8000"

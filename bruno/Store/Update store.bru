@@ -1,0 +1,25 @@
+meta {
+  name: Update store
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/stores/{{store_id}}
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  keeper_name: Budi Setiawan
+  keeper_address: Jl. Wow
+  ktp_photo_identifier: {{ktp_photo_identifier_2}}
+}
+
+assert {
+  res.status: eq 200
+}

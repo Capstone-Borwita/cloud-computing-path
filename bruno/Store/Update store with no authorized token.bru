@@ -1,0 +1,24 @@
+meta {
+  name: Update store with no authorized token
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/stores/{{store_id}}
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: foo
+}
+
+body:multipart-form {
+  keeper_name: Budi Setiawan
+  keeper_address: Jl. Wow
+}
+
+assert {
+  res.status: eq 404
+}

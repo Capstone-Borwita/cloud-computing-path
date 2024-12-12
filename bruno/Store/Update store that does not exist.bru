@@ -1,0 +1,24 @@
+meta {
+  name: Update store that does not exist
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/api/{{api_version}}/stores/999999
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:multipart-form {
+  keeper_name: Budi Setiawan
+  keeper_address: Jl. Wow
+}
+
+assert {
+  res.status: eq 404
+}

@@ -1,0 +1,29 @@
+meta {
+  name: Register user
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/auth/register
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  email: user{{user_no}}@mail.com
+  password: 12345678
+  name: User{{user_no}}
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  bru.setVar('user_no', Date.now())
+}
+
+script:post-response {
+  bru.setVar('user_token', res.body.data.token)
+}

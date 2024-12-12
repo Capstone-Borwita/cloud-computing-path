@@ -1,0 +1,15 @@
+meta {
+  name: Register user without data
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/{{api_version}}/auth/register
+  body: multipartForm
+  auth: none
+}
+
+assert {
+  res.status: eq 422
+}

@@ -12,6 +12,9 @@ site
 htmlcov
 .pytest_cache
 coverage.xml
+db.sqlite
+images/ml/*
+images/user-content/*
 
 pip-wheel-metadata/
 share/python-wheels/

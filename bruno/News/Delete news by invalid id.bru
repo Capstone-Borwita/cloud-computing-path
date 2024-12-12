@@ -1,0 +1,15 @@
+meta {
+  name: Delete news by invalid id
+  type: http
+  seq: 13
+}
+
+delete {
+  url: {{base_url}}/api/{{api_version}}/news/99999
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+}
