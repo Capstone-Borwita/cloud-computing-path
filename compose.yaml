@@ -10,3 +10,7 @@ services:
       - ./data:/src/data
     ports:
       - "8000:8000"
+    environment:
+      - MODE=development
+      - TOKEN_LENGTH=32
+      - ORIGIN=http://localhost:8000
