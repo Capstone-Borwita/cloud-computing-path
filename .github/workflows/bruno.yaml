@@ -1,4 +1,4 @@
-name: Run bruno test
+name: Bruno Test
 on:
   push:
     branches:
